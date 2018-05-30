@@ -2,41 +2,112 @@ import random
 import pisqpipe as pp
 from pisqpipe import DEBUG_EVAL, DEBUG
 
-
 pp.infotext = 'name="pbrain-pyrandom", author="Jan Stransky", version="1.0", country="Czech Republic", www="https://github.com/stranskyjan/pbrain-pyrandom"'
 
-MAX_BOARD = 100
+MAX_BOARD = 10
 board = [[0 for i in range(MAX_BOARD)] for j in range(MAX_BOARD)]
-
 
 ## ZILONG
-tuple_dict = {}
-
-MAX_BOARD = 100
-board = [[0 for i in range(MAX_BOARD)] for j in range(MAX_BOARD)]
+pattern_dict = {}
 
 for n in [5, 6]:
-    tuple_dict_temp = {}
-    for direction in ['v', 'h', 'rd']:
-        tuple_dict_temp.update({(x, y, direction): [0, 0, 0, 0, 0] for x in range(MAX_BOARD-(n-1)) for y in range(MAX_BOARD-(n-1))})
-    tuple_dict_temp.update({(x, y, 'ld'): [0, 0, 0, 0, 0] for x in range(n-1, MAX_BOARD) for y in range(MAX_BOARD-(n-1))})
-    tuple_dict[n] = tuple_dict_temp
+    pattern_dict_temp = {}
+    range_dict = {'v': (range(MAX_BOARD), range(MAX_BOARD - (n - 1))),
+                  'h': (range(MAX_BOARD - (n - 1)), range(MAX_BOARD)),
+                  'rd': (range(MAX_BOARD - (n - 1)), range(MAX_BOARD - (n - 1))),
+                  'ld': (range(n - 1, MAX_BOARD - (n - 1)), range(MAX_BOARD - (n - 1)))}
+    for direction in ['v', 'h', 'rd', 'ld']:
+        pattern_dict_temp.update({(x, y, direction): [0 for _ in range(n)]
+                                  for x in range_dict[direction][0] for y in range_dict[direction][1]})
+    pattern_dict[n] = pattern_dict_temp
+print(pattern_dict)
 
-def updateTupleDict(x, y, value):
+
+def updatePatternDict(x, y, value):
     for n in [5, 6]:
-        xFrom = max(x-(n-1), 0)
-        xTo = min(x+(n-1), MAX_BOARD-1) - (n-1)
-        yFrom = max(y-(n-1), 0)
-        yTo = min(y+(n-1), MAX_BOARD-1) - (n-1)
-        for xx in range(xFrom, xTo+1):
-            tuple_dict[n][(xx , y, 'v')][x-xx] = value
-            if (xx, xx+y-x, 'rd') in tuple_dict[n]:
-                tuple_dict_[n][(xx, xx+y-x, 'rd')][x-xx] = value
-        for yy in range(yFrom, yTo+1):
-            tuple_dict[n][(x, yy, 'h')][y-yy] = value
-            if (x+y-yy, yy, 'ld') in tuple_dict[n]:
-                tuple_dict[n][(x+y-yy, yy, 'ld')][y-yy] = value
+        xFrom = max(x - (n - 1), 0)
+        xTo = min(x + (n - 1), MAX_BOARD - 1) - (n - 1)
+        yFrom = max(y - (n - 1), 0)
+        yTo = min(y + (n - 1), MAX_BOARD - 1) - (n - 1)
+        for xx in range(xFrom, xTo + 1):
+            print(xx, y, x - xx)
+            pattern_dict[n][(xx, y, 'h')][x - xx] = value
+            if (xx, xx + y - x, 'rd') in pattern_dict[n]:
+                pattern_dict[n][(xx, xx + y - x, 'rd')][x - xx] = value
+        for yy in range(yFrom, yTo + 1):
+            pattern_dict[n][(x, yy, 'v')][y - yy] = value
+            if (x + y - yy, yy, 'ld') in pattern_dict[n]:
+                pattern_dict[n][(x + y - yy, yy, 'ld')][y - yy] = value
 
+
+## Jiancong
+def find_forced_move():
+    '''
+    If detect 4 in a row, break and return (position,pattern).
+    Else, if there are 3 in a row, random return one.
+    Or if there is no forced move, return None.
+    '''
+    alive_list = []
+    for i in pattern_dict[5].items():
+        if i[1] == [2, 2, 0, 2, 2]:
+            return i
+        if i[1] == [0, 2, 2, 2, 0]:
+            alive_list.append(i)
+    for i in pattern_dict[6].items():
+        if i[1] == [1, 2, 2, 2, 2, 0] or i[1] == [0, 2, 2, 2, 2, 1]:
+            return i
+        if i[1] == [0, 2, 2, 0, 2, 0] or i[1] == [0, 2, 0, 2, 2, 0]:
+            alive_list.append(i)
+    if len(alive_list) > 0:
+        return random.choice(alive_list)
+    else:
+        return None
+
+
+def find_next_position(pattern, step):
+    x, y, dir = pattern
+    if dir == 'h':
+        return (x + step, y)
+    elif dir == 'v':
+        return (x, y + step)
+    elif dir == 'rd':
+        return (x + step, y + step)
+    elif dir == 'ld':
+        return (x - step, y + step)
+    else:
+        pp.pipeOut("Error Direction")
+
+
+def find_blank(seq):
+    blanks = []
+    for i in range(len(seq)):
+        if not seq[i]:
+            blanks.append(i)
+    return blanks
+
+
+def brain_turn_baseline():
+    if pp.terminateAI:
+        return
+    forced = find_forced_move()
+    if forced is not None:
+        position = forced[0]
+        blanks = find_blank(forced[1])
+        x, y = find_next_position(position, random.choice(blanks))
+        pp.do_mymove(x, y)
+        return
+    i = 0
+    while True:
+        x = random.randint(0, pp.width)
+        y = random.randint(0, pp.height)
+        i += 1
+        if pp.terminateAI:
+            return
+        if isFree(x, y):
+            break
+    if i > 1:
+        pp.pipeOut("DEBUG {} coordinates didn't hit an empty field".format(i))
+    pp.do_mymove(x, y)
 
 
 def brain_init():
@@ -63,7 +134,7 @@ def isFree(x, y):
 def brain_my(x, y):
     if isFree(x, y):
         board[x][y] = 1
-        updateTupleDict(x, y, 1)
+        updatePatternDict(x, y, 1)
     else:
         pp.pipeOut("ERROR my move [{},{}]".format(x, y))
 
@@ -71,7 +142,7 @@ def brain_my(x, y):
 def brain_opponents(x, y):
     if isFree(x, y):
         board[x][y] = 2
-        updateTupleDict(x, y, 2)
+        updatePatternDict(x, y, 2)
     else:
         pp.pipeOut("ERROR opponents's move [{},{}]".format(x, y))
 
@@ -79,7 +150,7 @@ def brain_opponents(x, y):
 def brain_block(x, y):
     if isFree(x, y):
         board[x][y] = 3
-        updateTupleDict(x, y, 3)
+        updatePatternDict(x, y, 3)
     else:
         pp.pipeOut("ERROR winning move [{},{}]".format(x, y))
 
@@ -136,7 +207,7 @@ pp.brain_my = brain_my
 pp.brain_opponents = brain_opponents
 pp.brain_block = brain_block
 pp.brain_takeback = brain_takeback
-pp.brain_turn = brain_turn
+pp.brain_turn = brain_turn_baseline
 pp.brain_end = brain_end
 pp.brain_about = brain_about
 if DEBUG_EVAL:
@@ -146,6 +217,6 @@ if DEBUG_EVAL:
 def main():
     pp.main()
 
-
-if __name__ == "__main__":
-    main()
+#
+# if __name__ == "__main__":
+#     main()
