@@ -20,7 +20,6 @@ for n in [5, 6]:
         pattern_dict_temp.update({(x, y, direction): [0 for _ in range(n)]
                                   for x in range_dict[direction][0] for y in range_dict[direction][1]})
     pattern_dict[n] = pattern_dict_temp
-print(pattern_dict)
 
 
 def updatePatternDict(x, y, value):
@@ -30,7 +29,6 @@ def updatePatternDict(x, y, value):
         yFrom = max(y - (n - 1), 0)
         yTo = min(y + (n - 1), MAX_BOARD - 1) - (n - 1)
         for xx in range(xFrom, xTo + 1):
-            print(xx, y, x - xx)
             pattern_dict[n][(xx, y, 'h')][x - xx] = value
             if (xx, xx + y - x, 'rd') in pattern_dict[n]:
                 pattern_dict[n][(xx, xx + y - x, 'rd')][x - xx] = value
@@ -49,13 +47,15 @@ def find_forced_move():
     '''
     alive_list = []
     for i in pattern_dict[5].items():
-        if i[1] == [2, 2, 0, 2, 2]:
+        if i[1] == [0, 2, 2, 2, 2] \
+                or i[1] == [2, 0, 2, 2, 2] \
+                or i[1] == [2, 2, 0, 2, 2] \
+                or i[1] == [2, 2, 2, 0, 2] \
+                or i[1] == [2, 2, 2, 2, 0]:
             return i
         if i[1] == [0, 2, 2, 2, 0]:
             alive_list.append(i)
     for i in pattern_dict[6].items():
-        if i[1] == [1, 2, 2, 2, 2, 0] or i[1] == [0, 2, 2, 2, 2, 1]:
-            return i
         if i[1] == [0, 2, 2, 0, 2, 0] or i[1] == [0, 2, 0, 2, 2, 0]:
             alive_list.append(i)
     if len(alive_list) > 0:
@@ -94,20 +94,21 @@ def brain_turn_baseline():
         position = forced[0]
         blanks = find_blank(forced[1])
         x, y = find_next_position(position, random.choice(blanks))
+        print(x, y)
         pp.do_mymove(x, y)
-        return
-    i = 0
-    while True:
-        x = random.randint(0, pp.width)
-        y = random.randint(0, pp.height)
-        i += 1
-        if pp.terminateAI:
-            return
-        if isFree(x, y):
-            break
-    if i > 1:
-        pp.pipeOut("DEBUG {} coordinates didn't hit an empty field".format(i))
-    pp.do_mymove(x, y)
+    else:
+        i = 0
+        while True:
+            x = random.randint(0, pp.width)
+            y = random.randint(0, pp.height)
+            i += 1
+            if pp.terminateAI:
+                return
+            if isFree(x, y):
+                break
+        if i > 1:
+            pp.pipeOut("DEBUG {} coordinates didn't hit an empty field".format(i))
+        pp.do_mymove(x, y)
 
 
 def brain_init():
@@ -125,6 +126,10 @@ def brain_restart():
         for y in range(pp.height):
             board[x][y] = 0
     pp.pipeOut("OK")
+
+
+# def isFree(x, y):
+#     return board[x][y] == 0
 
 
 def isFree(x, y):
@@ -162,21 +167,21 @@ def brain_takeback(x, y):
     return 2
 
 
-def brain_turn():
-    if pp.terminateAI:
-        return
-    i = 0
-    while True:
-        x = random.randint(0, pp.width)
-        y = random.randint(0, pp.height)
-        i += 1
-        if pp.terminateAI:
-            return
-        if isFree(x, y):
-            break
-    if i > 1:
-        pp.pipeOut("DEBUG {} coordinates didn't hit an empty field".format(i))
-    pp.do_mymove(x, y)
+# def brain_turn():
+#     if pp.terminateAI:
+#         return
+#     i = 0
+#     while True:
+#         x = random.randint(0, pp.width)
+#         y = random.randint(0, pp.height)
+#         i += 1
+#         if pp.terminateAI:
+#             return
+#         if isFree(x, y):
+#             break
+#     if i > 1:
+#         pp.pipeOut("DEBUG {} coordinates didn't hit an empty field".format(i))
+#     pp.do_mymove(x, y)
 
 
 def brain_end():
@@ -217,6 +222,6 @@ if DEBUG_EVAL:
 def main():
     pp.main()
 
-#
-# if __name__ == "__main__":
-#     main()
+
+if __name__ == "__main__":
+    main()
