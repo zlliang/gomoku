@@ -2,10 +2,41 @@ import random
 import pisqpipe as pp
 from pisqpipe import DEBUG_EVAL, DEBUG
 
+
 pp.infotext = 'name="pbrain-pyrandom", author="Jan Stransky", version="1.0", country="Czech Republic", www="https://github.com/stranskyjan/pbrain-pyrandom"'
 
 MAX_BOARD = 100
 board = [[0 for i in range(MAX_BOARD)] for j in range(MAX_BOARD)]
+
+
+## ZILONG
+tuple_dict = {}
+
+MAX_BOARD = 100
+board = [[0 for i in range(MAX_BOARD)] for j in range(MAX_BOARD)]
+
+for n in [5, 6]:
+    tuple_dict_temp = {}
+    for direction in ['v', 'h', 'rd']:
+        tuple_dict_temp.update({(x, y, direction): [0, 0, 0, 0, 0] for x in range(MAX_BOARD-(n-1)) for y in range(MAX_BOARD-(n-1))})
+    tuple_dict_temp.update({(x, y, 'ld'): [0, 0, 0, 0, 0] for x in range(n-1, MAX_BOARD) for y in range(MAX_BOARD-(n-1))})
+    tuple_dict[n] = tuple_dict_temp
+
+def updateTupleDict(x, y, value):
+    for n in [5, 6]:
+        xFrom = max(x-(n-1), 0)
+        xTo = min(x+(n-1), MAX_BOARD-1) - (n-1)
+        yFrom = max(y-(n-1), 0)
+        yTo = min(y+(n-1), MAX_BOARD-1) - (n-1)
+        for xx in range(xFrom, xTo+1):
+            tuple_dict[n][(xx , y, 'v')][x-xx] = value
+            if (xx, xx+y-x, 'rd') in tuple_dict[n]:
+                tuple_dict_[n][(xx, xx+y-x, 'rd')][x-xx] = value
+        for yy in range(yFrom, yTo+1):
+            tuple_dict[n][(x, yy, 'h')][y-yy] = value
+            if (x+y-yy, yy, 'ld') in tuple_dict[n]:
+                tuple_dict[n][(x+y-yy, yy, 'ld')][y-yy] = value
+
 
 
 def brain_init():
@@ -32,6 +63,7 @@ def isFree(x, y):
 def brain_my(x, y):
     if isFree(x, y):
         board[x][y] = 1
+        updateTupleDict(x, y, 1)
     else:
         pp.pipeOut("ERROR my move [{},{}]".format(x, y))
 
@@ -39,6 +71,7 @@ def brain_my(x, y):
 def brain_opponents(x, y):
     if isFree(x, y):
         board[x][y] = 2
+        updateTupleDict(x, y, 2)
     else:
         pp.pipeOut("ERROR opponents's move [{},{}]".format(x, y))
 
@@ -46,6 +79,7 @@ def brain_opponents(x, y):
 def brain_block(x, y):
     if isFree(x, y):
         board[x][y] = 3
+        updateTupleDict(x, y, 3)
     else:
         pp.pipeOut("ERROR winning move [{},{}]".format(x, y))
 
