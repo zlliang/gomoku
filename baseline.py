@@ -2,10 +2,14 @@ import random
 import pisqpipe as pp
 from pisqpipe import DEBUG_EVAL, DEBUG
 
-pp.infotext = 'name="pbrain-pyrandom", author="Jan Stransky", version="1.0", country="Czech Republic", www="https://github.com/stranskyjan/pbrain-pyrandom"'
+pp.infotext = 'name="baseline", author="Jiancong Gao & Zilong Liang", version="1.0", country="China", www="https://github.com/zlliang/gomoku"'
 
-MAX_BOARD = 10
+MAX_BOARD = 20
 board = [[0 for i in range(MAX_BOARD)] for j in range(MAX_BOARD)]
+x_min = None
+x_max = None
+y_min = None
+y_max = None
 
 ## ZILONG
 pattern_dict = {}
@@ -23,6 +27,18 @@ for n in [5, 6]:
 
 
 def updatePatternDict(x, y, value):
+    global x_min, x_max, y_min, y_max
+    if x_min is None:
+        x_min = max(x - 1, 0)
+        x_max = min(x + 1, MAX_BOARD - 1)
+        y_min = max(y - 1, 0)
+        y_max = min(y + 1, MAX_BOARD - 1)
+    else:
+        x_min = max(min(x_min, x - 1), 0)
+        x_max = min(max(x_max, x + 1), MAX_BOARD - 1)
+        y_min = max(min(y_min, y - 1), 0)
+        y_max = min(max(y_max, y + 1), MAX_BOARD - 1)
+
     for n in [5, 6]:
         xFrom = max(x - (n - 1), 0)
         xTo = min(x + (n - 1), MAX_BOARD - 1) - (n - 1)
@@ -39,6 +55,7 @@ def updatePatternDict(x, y, value):
 
 
 ## Jiancong
+
 def find_forced_move():
     '''
     If detect 4 in a row, break and return (position,pattern).
@@ -94,13 +111,16 @@ def brain_turn_baseline():
         position = forced[0]
         blanks = find_blank(forced[1])
         x, y = find_next_position(position, random.choice(blanks))
-        print(x, y)
         pp.do_mymove(x, y)
     else:
         i = 0
         while True:
-            x = random.randint(0, pp.width)
-            y = random.randint(0, pp.height)
+            if x_min is None:
+                x = random.randint(0, MAX_BOARD - 1)
+                y = random.randint(0, MAX_BOARD - 1)
+            else:
+                x = random.randint(x_min, x_max)
+                y = random.randint(y_min, y_max)
             i += 1
             if pp.terminateAI:
                 return
