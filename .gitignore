@@ -1,3 +1,6 @@
+# Special for this project
+.idea
+*.sketch
 
 # Created by https://www.gitignore.io/api/windows,linux,macos,pycharm
 
@@ -129,5 +132,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-.idea
 # End of https://www.gitignore.io/api/windows,linux,macos,pycharm
