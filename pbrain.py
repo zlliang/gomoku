@@ -1,7 +1,13 @@
+# Python Piskvork framework
+# This is a modified version of pbrain agent, compatible with Piskvork manager.
+# Author: @stranskyjan: https://github.com/stranskyjan/pbrain-pyrandom/
+# Modified: @zlliang: https://github.com/zlliang/gomoku/
+
 import random
 import pisqpipe as pp
 from pisqpipe import DEBUG_EVAL, DEBUG
 
+# Our agent
 import agent as agent
 
 pp.infotext = agent.infotext
@@ -22,51 +28,38 @@ def brain_init():
 def brain_restart():
 	for x in range(pp.width):
 		for y in range(pp.height):
-			board[x][y] = 0
+			agent.board[x, y] = 0
 	pp.pipeOut("OK")
 
 def isFree(x, y):
-	return x >= 0 and y >= 0 and x < pp.width and y < pp.height and board[x][y] == 0
+	return x >= 0 and y >= 0 and x < pp.width and y < pp.height and agent.board[x, y] == 0
 
 def brain_my(x, y):
 	if isFree(x,y):
-		board[x][y] = 1
+		agent.board[x, y] = 1
 	else:
 		pp.pipeOut("ERROR my move [{},{}]".format(x, y))
 
 def brain_opponents(x, y):
 	if isFree(x,y):
-		board[x][y] = 2
+		agent.board[x, y] = 2
 	else:
 		pp.pipeOut("ERROR opponents's move [{},{}]".format(x, y))
 
 def brain_block(x, y):
 	if isFree(x,y):
-		board[x][y] = 3
+		agent.board[x, y] = 3
 	else:
 		pp.pipeOut("ERROR winning move [{},{}]".format(x, y))
 
 def brain_takeback(x, y):
 	if x >= 0 and y >= 0 and x < pp.width and y < pp.height and board[x][y] != 0:
-		board[x][y] = 0
+		agent.board[x, y] = 0
 		return 0
 	return 2
 
-def brain_turn():
-	if pp.terminateAI:
-		return
-	i = 0
-	while True:
-		x = random.randint(0, pp.width)
-		y = random.randint(0, pp.height)
-		i += 1
-		if pp.terminateAI:
-			return
-		if isFree(x,y):
-			break
-	if i > 1:
-		pp.pipeOut("DEBUG {} coordinates didn't hit an empty field".format(i))
-	pp.do_mymove(x, y)
+# brain_turn should be implemented in specific agents.
+brain_turn = agent.brain_turn
 
 def brain_end():
 	pass
@@ -81,7 +74,7 @@ if DEBUG_EVAL:
 		wnd = win32gui.GetForegroundWindow()
 		dc = win32gui.GetDC(wnd)
 		rc = win32gui.GetClientRect(wnd)
-		c = str(board[x][y])
+		c = str(agent.board[x, y])
 		win32gui.ExtTextOut(dc, rc[2]-15, 3, 0, None, c, ())
 		win32gui.ReleaseDC(wnd, dc)
 
