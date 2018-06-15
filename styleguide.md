@@ -5,7 +5,7 @@
   - `TODO` 设计高效提取 pattern 的方式，比如缓存在对象的一个字典里 `board.pattern()`
 - 将评估棋盘的函数放入 `evaluate.py`
   - `TODO` 这个文件里只有一个主要函数 `def evaluate(board)`
-- Agent 的主逻辑放入 `agent-[algorithm_name].py`
+- Agent 的主逻辑放入 `[algorithm_name].py`
   - `agent-baseline.py`
   - `TODO` `agent-minimax.py`
   - `TODO` 遗传算法或者 MCTS 算法的精细实现
