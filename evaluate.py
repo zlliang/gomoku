@@ -3,13 +3,12 @@ def evaluate(board):
 
     Parameters
     ----------
-        board: Current board, instance of `util.Board`
+    board: Current board, instance of `util.Board`
     
     Returns
     -------
-        score: Float number of current board score
+    score: Float number of current board score
     """
-    # raise NotImplementedError("Evaluate function has not been implemented!")
     eval_func = [huo4, huo3]
     score = [func(board) for func in eval_func]
     score = sum(score)
