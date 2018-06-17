@@ -76,9 +76,13 @@ False
 [2, 0, 0, 0, 0, 0]
 [0, 0, 0, 0, 0, 0]
 [0, 0, 0, 0, 0, 0]
+
+# pattern 函数可以接受一个数字 'x'，表示横向、竖向、左斜与右斜的 x 元组；
+# 也可以接受一个字符串 'nxm'，表示所有形如 n x m 的子集
 >>> b.pattern('5')  # 或者直接 b.pattern(5) 也可以，但最好使用字符串
-# TODO: 还未实现
->>> b[1:5, 2:7].pattern('5')
-ValueError: Trying to get patterns on a subset!  # 对子集不能取 pattern
-# TODO: 预计实现的 pattern 种类：'5', '6', '3x5', '4x6'
+<generator object Board.pattern>  # 返回的是一个可迭代的生成器
+>>> [0, 3, 0, 0, 0] in b.pattern('5')
+True
+>>> [[0, 3, 0], [2, 0, 0]] in b.pattern('3x2')
+True
 ```
