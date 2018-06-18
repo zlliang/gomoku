@@ -43,6 +43,9 @@ def check3(board):
     s_huo3 = 80
     p_huo3 = [0, 1, 1, 1, 0]
     p_huo3_ = [0, 2, 2, 2, 0]
+    s_cheng5 = 10000
+    p_cheng5 = [1, 1, 1, 1, 1]
+    p_cheng5_ = [2, 2, 2, 2, 2]
     for p in board.pattern('5'):
         if p in p_si3:
             score += s_si3
@@ -52,6 +55,10 @@ def check3(board):
             score += s_huo3
         elif p == p_huo3_:
             score -= s_huo3
+        elif p == p_cheng5:
+            score += s_cheng5
+        elif p == p_cheng5_:
+            score -= s_cheng5
     return score
 
 def check4(board):
