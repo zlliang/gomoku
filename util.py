@@ -11,7 +11,7 @@ class Board:
           Y 0 [[0, 1, 2],
             1  [1, 2, 2],
             2  [1, 1, 1]]
-    scale: size of the board (n x n), default is 10
+    scale: size of the board (n x n), default is 20
 
     Usage
     -----
@@ -26,7 +26,7 @@ class Board:
         >>> b.pattern('3x5')
     """
     
-    def __init__(self, board=None, scale=10):
+    def __init__(self, board=None, scale=20):
         if not board:
             self._board = [[0 for i in range(scale)] for j in range(scale)]
             self.size = (scale, scale)
@@ -34,7 +34,7 @@ class Board:
             self._board = board
             try:
                 self.size = (len(board[0]), len(board))
-            except TypeError:
+            except TypeError:  # Only one row, a flat list
                 self.size = (len(board), 1)
     
     def pattern(self, t):
@@ -53,7 +53,7 @@ class Board:
                   this class `Board`
         """
         nx, ny = self.size
-        if str(t).isdigit():  # '5' <-> 5
+        if str(t).isdigit():  # 'n' <-> n-triples
             t = int(t)
             for x in range(nx):
                 for y in range(ny-t+1):
@@ -62,32 +62,34 @@ class Board:
                 for y in range(ny):
                     yield self[x:x+t, y]  # H
             for x in range(nx-t+1):
-                for y in range(nx-t+1):
+                for y in range(ny-t+1):
                     yield Board([self[x+i, y+i] for i in range(t)])  # RD
             for x in range(t-1, nx):
                 for y in range(ny-t+1):
                     yield Board([self[x-i, y+i] for i in range(t)])  # LD
-        elif 'x' in t:
-            sx, sy = list(map(int, t.split('x')))  # '3x5' -> [3, 5]
+        elif 'x' in t:  # 'nxm' -> [n, m]-subsets
+            sx, sy = map(int, t.split('x'))
             for x in range(nx-sx+1):
                 for y in range(ny-sy+1):
                     yield self[x:x+sx, y:y+sy]
         else:
             raise ValueError("Not an appropriate parameter for pattern query!")
     
+    def _update_range(self):
+    
     def __getitem__(self, indices):
-        y, x = indices
-        if not isinstance(x, slice) and not isinstance(y, slice):
-            return self._board[x][y]
-        if isinstance(y, slice):
-            subset = [row[y] for row in self._board]
+        if self.size[1] == 1:  # Only one row, a flat list
+            return self._board[indices]
         else:
-            subset = [[row[y]] for row in self._board]
-        subset = subset[x]
-        if isinstance(subset, list):
+            y, x = indices
+            if not isinstance(x, slice) and not isinstance(y, slice):  # Scalar
+                return self._board[x][y]
+            if isinstance(y, slice):
+                subset = [row[y] for row in self._board]
+            else:
+                subset = [[row[y]] for row in self._board]
+            subset = subset[x]
             return Board(subset)
-        else:
-            return self._board[x][y]
     
     def __setitem__(self, indices, value):
         y, x = indices
@@ -98,6 +100,27 @@ class Board:
     def __eq__(self, obj):
         if type(self) == type(obj):
             return self._board == obj._board
+        elif isinstance(obj, list):
+            if len(obj) != len(self._board):
+                return False
+            if isinstance(obj[0], int):
+                for i in range(len(obj)):
+                    if obj[i] == 6:
+                        continue
+                    elif obj[i] != self._board[i]:
+                        return False
+            elif isinstance(obj[0], list):
+                if len(obj[0]) != len(self._board[0]):
+                    return False
+                for i in range(len(obj)):
+                    for j in range(len(obj[i])):
+                        if obj[i][j] == 6:
+                            continue
+                        elif obj[i][j] != self[j, i]:
+                            return False
+            else:
+                return False
+            return True
         else:
             return self._board == obj
     
