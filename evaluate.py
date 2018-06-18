@@ -20,7 +20,7 @@ def check2(board):
     s_si2 = 1
     p_si2 = [[2, 1, 1, 0], [0, 1, 1, 2]]
     p_si2_ = [[1, 2, 2, 0], [0, 2, 2, 1]]
-    s_huo2 = 3
+    s_huo2 = 4
     p_huo2 = [0, 1, 1, 0]
     p_huo2_ = [0, 2, 2, 0]
     for p in board.pattern('4'):
@@ -37,10 +37,10 @@ def check2(board):
 def check3(board):
     """死3，活3"""
     score = 0
-    s_si3 = 7
+    s_si3 = 20
     p_si3 = [[2, 1, 1, 1, 0], [0, 1, 1, 1, 2]]
     p_si3_ = [[1, 2, 2, 2, 0], [0, 2, 2, 2, 1]]
-    s_huo3 = 63
+    s_huo3 = 80
     p_huo3 = [0, 1, 1, 1, 0]
     p_huo3_ = [0, 2, 2, 2, 0]
     for p in board.pattern('5'):
@@ -57,10 +57,10 @@ def check3(board):
 def check4(board):
     """冲4，活4"""
     score = 0
-    s_chong4 = 31
+    s_chong4 = 400
     p_chong4 = [[2, 1, 1, 1, 1, 0], [0, 1, 1, 1, 1, 2]]
     p_chong4_ = [[1, 2, 2, 2, 2, 0], [0, 2, 2, 2, 2, 1]]
-    s_huo4 = 511
+    s_huo4 = 1600
     p_huo4 = [0, 1, 1, 1, 1, 0]
     p_huo4_ = [0, 2, 2, 2, 2, 0]
     for p in board.pattern('6'):

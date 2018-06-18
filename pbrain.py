@@ -66,7 +66,12 @@ def brain_takeback(x, y):
 
 
 # brain_turn should be implemented in specific agents.
-brain_turn = agent.brain_turn
+
+def brain_turn():
+    if pp.terminateAI:
+        return
+    x, y = agent.minimax()
+    pp.do_mymove(x, y)
 
 
 def brain_end():

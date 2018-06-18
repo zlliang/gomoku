@@ -14,9 +14,9 @@ board = util.Board(scale=20)
 INF = float("inf")
 
 
-def brain_turn(max_depth=1):
-    v = maxValue(board, 0, max_depth, -INF, INF, return_pattern=True)
-    return v
+def minimax(max_depth=3):
+    x, y = maxValue(board, 0, max_depth, -INF, INF, return_pattern=True)
+    return x, y
 
 
 def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
