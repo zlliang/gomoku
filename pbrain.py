@@ -17,66 +17,78 @@ board = [[0 for i in range(MAX_BOARD)] for j in range(MAX_BOARD)]
 
 
 def brain_init():
-	if pp.width < 5 or pp.height < 5:
-		pp.pipeOut("ERROR size of the board")
-	    return
-	if pp.width > MAX_BOARD or pp.height > MAX_BOARD:
-		pp.pipeOut("ERROR Maximal board size is {}".format(MAX_BOARD))
-		return
-	pp.pipeOut("OK")
+    if pp.width < 5 or pp.height < 5:
+        pp.pipeOut("ERROR size of the board")
+        return
+    if pp.width > MAX_BOARD or pp.height > MAX_BOARD:
+        pp.pipeOut("ERROR Maximal board size is {}".format(MAX_BOARD))
+        return
+    pp.pipeOut("OK")
+
 
 def brain_restart():
-	for x in range(pp.width):
-		for y in range(pp.height):
-			agent.board[x, y] = 0
-	pp.pipeOut("OK")
+    for x in range(pp.width):
+        for y in range(pp.height):
+            agent.board[x, y] = 0
+    pp.pipeOut("OK")
+
 
 def isFree(x, y):
-	return x >= 0 and y >= 0 and x < pp.width and y < pp.height and agent.board[x, y] == 0
+    return x >= 0 and y >= 0 and x < pp.width and y < pp.height and agent.board[x, y] == 0
+
 
 def brain_my(x, y):
-	if isFree(x,y):
-		agent.board[x, y] = 1
-	else:
-		pp.pipeOut("ERROR my move [{},{}]".format(x, y))
+    if isFree(x, y):
+        agent.board[x, y] = 1
+    else:
+        pp.pipeOut("ERROR my move [{},{}]".format(x, y))
+
 
 def brain_opponents(x, y):
-	if isFree(x,y):
-		agent.board[x, y] = 2
-	else:
-		pp.pipeOut("ERROR opponents's move [{},{}]".format(x, y))
+    if isFree(x, y):
+        agent.board[x, y] = 2
+    else:
+        pp.pipeOut("ERROR opponents's move [{},{}]".format(x, y))
+
 
 def brain_block(x, y):
-	if isFree(x,y):
-		agent.board[x, y] = 3
-	else:
-		pp.pipeOut("ERROR winning move [{},{}]".format(x, y))
+    if isFree(x, y):
+        agent.board[x, y] = 3
+    else:
+        pp.pipeOut("ERROR winning move [{},{}]".format(x, y))
+
 
 def brain_takeback(x, y):
-	if x >= 0 and y >= 0 and x < pp.width and y < pp.height and board[x][y] != 0:
-		agent.board[x, y] = 0
-		return 0
-	return 2
+    if x >= 0 and y >= 0 and x < pp.width and y < pp.height and board[x][y] != 0:
+        agent.board[x, y] = 0
+        return 0
+    return 2
+
 
 # brain_turn should be implemented in specific agents.
 brain_turn = agent.brain_turn
 
+
 def brain_end():
-	pass
+    pass
+
 
 def brain_about():
-	pp.pipeOut(pp.infotext)
+    pp.pipeOut(pp.infotext)
+
 
 if DEBUG_EVAL:
-	import win32gui
-	def brain_eval(x, y):
-		# TODO check if it works as expected
-		wnd = win32gui.GetForegroundWindow()
-		dc = win32gui.GetDC(wnd)
-		rc = win32gui.GetClientRect(wnd)
-		c = str(agent.board[x, y])
-		win32gui.ExtTextOut(dc, rc[2]-15, 3, 0, None, c, ())
-		win32gui.ReleaseDC(wnd, dc)
+    import win32gui
+
+
+    def brain_eval(x, y):
+        # TODO check if it works as expected
+        wnd = win32gui.GetForegroundWindow()
+        dc = win32gui.GetDC(wnd)
+        rc = win32gui.GetClientRect(wnd)
+        c = str(agent.board[x, y])
+        win32gui.ExtTextOut(dc, rc[2] - 15, 3, 0, None, c, ())
+        win32gui.ReleaseDC(wnd, dc)
 
 ######################################################################
 # A possible way how to debug brains.
@@ -128,10 +140,12 @@ pp.brain_turn = brain_turn
 pp.brain_end = brain_end
 pp.brain_about = brain_about
 if DEBUG_EVAL:
-	pp.brain_eval = brain_eval
+    pp.brain_eval = brain_eval
+
 
 def main():
-	pp.main()
+    pp.main()
+
 
 if __name__ == "__main__":
-	main()
+    main()

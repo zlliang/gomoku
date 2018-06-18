@@ -1,3 +1,4 @@
+# Functions used in baseline model
 def find_forced_move():
     '''
     If detect 4 in a row, break and return (position,pattern).
@@ -65,3 +66,7 @@ def brain_turn_baseline():
     if i > 1:
         pp.pipeOut("DEBUG {} coordinates didn't hit an empty field".format(i))
     pp.do_mymove(x, y)
+
+
+#Functions used in min-max model
+
