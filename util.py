@@ -81,7 +81,41 @@ class Board:
                     yield self[x:x+sx, y:y+sy]
         else:
             raise ValueError("Not an appropriate parameter for pattern query!")
-    
+        
+    def _deflate_range(self):
+        # cond1 = x == self._x_min
+        # cond2 = x == self._x_max
+        # cond3 = y == self._y_min
+        # cond4 = y == self._y_max
+        # if any([cond1, cond2, cond3, cond4]):
+        #     # Search range
+        x_min = self.size[0]
+        x_max = 0
+        y_min = self.size[1]
+        y_max = 0
+        for x in range(self.size[0]):
+            for y in range(self.size[1]):
+                if self[x, y] != 0:
+                    x_min = min(x_min, x)
+                    x_max = max(x_max, x)
+                    y_min = min(y_min, y)
+                    y_max = max(y_max, y)
+        if x_min > x_max:
+            # Initialize ranges
+            self._x_min = int(self.size[0]/2)
+            self._x_max = int(self.size[0]/2)
+            self._y_min = int(self.size[1]/2)
+            self._y_max = int(self.size[1]/2)
+            self.xrange = range(self._x_min-1, self._x_max+1)
+            self.yrange = range(self._y_min-1, self._y_max+1)
+            return
+        self._x_min = x_min
+        self._x_max = x_max
+        self._y_min = y_min
+        self._y_max = y_max
+        self.xrange = range(max(self._x_min-1, 0), min(self._x_max+2, self.size[0]))
+        self.yrange = range(max(self._y_min-1, 0), min(self._y_max+2, self.size[1]))
+
     def __getitem__(self, indices):
         if self.size[1] == 1:  # Only one row, a flat list
             return self._board[indices]
@@ -102,12 +136,16 @@ class Board:
             raise ValueError("Trying to assign multiple values to the board!")
         self._board[x][y] = value
         # Update ranges
-        self._x_min = min(self._x_min, x)
-        self._x_max = max(self._x_max, x)
-        self._y_min = min(self._y_min, y)
-        self._y_max = max(self._y_max, y)
-        self.xrange = range(self._x_min-1, self._x_max+1)
-        self.yrange = range(self._y_min-1, self._y_max+1)
+        # if value == 0:
+        #     self._deflate_range(x, y)
+        # else:
+        #     self._x_min = min(self._x_min, x)
+        #     self._x_max = max(self._x_max, x)
+        #     self._y_min = min(self._y_min, y)
+        #     self._y_max = max(self._y_max, y)
+        #     self.xrange = range(self._x_min-1, self._x_max+1)
+        #     self.yrange = range(self._y_min-1, self._y_max+1)
+        self._deflate_range()
     
     def __eq__(self, obj):
         if type(self) == type(obj):
