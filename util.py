@@ -41,8 +41,9 @@ class Board:
         self._x_max = int(scale/2)
         self._y_min = int(scale/2)
         self._y_max = int(scale/2)
-        self.xrange = range(self._x_min-1, self._x_max+1)
-        self.yrange = range(self._y_min-1, self._y_max+1)
+        self.xrange = range(self._x_min-1, self._x_max+2)
+        self.yrange = range(self._y_min-1, self._y_max+2)
+        self._flag = False
     
     def pattern(self, t):
         """Get local patterns of a board
@@ -59,6 +60,13 @@ class Board:
         patterns: An iterable generator, in which all subset are instances of 
                   this class `Board`
         """
+        x_start = max(self._x_min-1, 0)
+        x_end = min(self._x_max+2, self.size[0])
+        y_start = max(self._y_min-1, 0)
+        y_end = min(self._y_max+2, self.size[1])
+        return self[x_start:x_end, y_start:y_end]._pattern(t)
+    
+    def _pattern(self, t):
         nx, ny = self.size
         if str(t).isdigit():  # 'n' <-> n-triples
             t = int(t)
@@ -106,8 +114,9 @@ class Board:
             self._x_max = int(self.size[0]/2)
             self._y_min = int(self.size[1]/2)
             self._y_max = int(self.size[1]/2)
-            self.xrange = range(self._x_min-1, self._x_max+1)
-            self.yrange = range(self._y_min-1, self._y_max+1)
+            self.xrange = range(self._x_min-1, self._x_max+2)
+            self.yrange = range(self._y_min-1, self._y_max+2)
+            self._flag = False
             return
         self._x_min = x_min
         self._x_max = x_max
@@ -136,16 +145,16 @@ class Board:
             raise ValueError("Trying to assign multiple values to the board!")
         self._board[x][y] = value
         # Update ranges
-        # if value == 0:
-        #     self._deflate_range(x, y)
-        # else:
-        #     self._x_min = min(self._x_min, x)
-        #     self._x_max = max(self._x_max, x)
-        #     self._y_min = min(self._y_min, y)
-        #     self._y_max = max(self._y_max, y)
-        #     self.xrange = range(self._x_min-1, self._x_max+1)
-        #     self.yrange = range(self._y_min-1, self._y_max+1)
-        self._deflate_range()
+        if value == 0 or self._flag == False:
+            self._deflate_range()
+        else:
+            self._x_min = min(self._x_min, x)
+            self._x_max = max(self._x_max, x)
+            self._y_min = min(self._y_min, y)
+            self._y_max = max(self._y_max, y)
+            self.xrange = range(max(self._x_min-1, 0), min(self._x_max+2, self.size[0]))
+            self.yrange = range(max(self._y_min-1, 0), min(self._y_max+2, self.size[1]))
+            self._flag = True
     
     def __eq__(self, obj):
         if type(self) == type(obj):
