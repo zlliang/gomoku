@@ -36,6 +36,13 @@ class Board:
                 self.size = (len(board[0]), len(board))
             except TypeError:  # Only one row, a flat list
                 self.size = (len(board), 1)
+        # Initialize ranges
+        self._x_min = int(scale/2)
+        self._x_max = int(scale/2)
+        self._y_min = int(scale/2)
+        self._y_max = int(scale/2)
+        self.xrange = range(self._x_min-1, self._x_max+1)
+        self.yrange = range(self._y_min-1, self._y_max+1)
     
     def pattern(self, t):
         """Get local patterns of a board
@@ -75,8 +82,6 @@ class Board:
         else:
             raise ValueError("Not an appropriate parameter for pattern query!")
     
-    def _update_range(self):
-    
     def __getitem__(self, indices):
         if self.size[1] == 1:  # Only one row, a flat list
             return self._board[indices]
@@ -96,31 +101,17 @@ class Board:
         if isinstance(x, slice) or isinstance(y, slice):
             raise ValueError("Trying to assign multiple values to the board!")
         self._board[x][y] = value
+        # Update ranges
+        self._x_min = min(self._x_min, x)
+        self._x_max = max(self._x_max, x)
+        self._y_min = min(self._y_min, y)
+        self._y_max = max(self._y_max, y)
+        self.xrange = range(self._x_min-1, self._x_max+1)
+        self.yrange = range(self._y_min-1, self._y_max+1)
     
     def __eq__(self, obj):
         if type(self) == type(obj):
             return self._board == obj._board
-        elif isinstance(obj, list):
-            if len(obj) != len(self._board):
-                return False
-            if isinstance(obj[0], int):
-                for i in range(len(obj)):
-                    if obj[i] == 6:
-                        continue
-                    elif obj[i] != self._board[i]:
-                        return False
-            elif isinstance(obj[0], list):
-                if len(obj[0]) != len(self._board[0]):
-                    return False
-                for i in range(len(obj)):
-                    for j in range(len(obj[i])):
-                        if obj[i][j] == 6:
-                            continue
-                        elif obj[i][j] != self[j, i]:
-                            return False
-            else:
-                return False
-            return True
         else:
             return self._board == obj
     

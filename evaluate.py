@@ -9,107 +9,67 @@ def evaluate(board):
     -------
     score: Float number of current board score
     """
-    eval_func = [huo4, huo3]
+    eval_func = [check2, check3, check4]
     score = [func(board) for func in eval_func]
     score = sum(score)
-
-
-def huo4(board):
-    """
-    [0, *, *, *, *, 0]
-    """
-    base = 90
-    score = 0
-    p = [0, 1, 1, 1, 1, 0]
-    p_ = [0, 2, 2, 2, 2, 0]
-    for pattern in board.pattern('6'):
-        if pattern == p:
-            score += base
-        elif pattern == p_:
-            score -= base
     return score
 
-def chong4(board):
-    """
-    [~, *, *, *, *, 0]
-    """
-    base = 60
+def check2(board):
+    """死2，活2"""
     score = 0
-    p1 = [2, 1, 1, 1, 1, 0]
-    p2 = [0, 1, 1, 1, 1, 2]
-    p1_ = [1, 2, 2, 2, 2, 0]
-    p2_ = [0, 2, 2, 2, 2, 1]
-    for pattern in board.pattern('6'):  # TODO: Merge
-        if pattern == p1 or pattern == p2:
-            score += base
-        elif pattern == p1_ or pattern == p2_:
-            score -= base
+    s_si2 = 1
+    p_si2 = [[2, 1, 1, 0], [0, 1, 1, 2]]
+    p_si2_ = [[1, 2, 2, 0], [0, 2, 2, 1]]
+    s_huo2 = 3
+    p_huo2 = [0, 1, 1, 0]
+    p_huo2_ = [0, 2, 2, 0]
+    for p in board.pattern('4'):
+        if p in p_si2:
+            score += s_si2
+        elif p in p_si2_:
+            score -= s_si2
+        elif p == p_huo2:
+            score += s_huo2
+        elif p == p_huo2_:
+            score -= s_huo2
     return score
 
-def huo3(board):
-    """
-    [0, *, *, *, 0]
-    """
-    base = 50
+def check3(board):
+    """死3，活3"""
     score = 0
-    p = [0, 1, 1, 1, 0]
-    p_ = [0, 2, 2, 2, 0]
-    for pattern in board.pattern('5'):
-        if pattern == p:
-            score += base
-        elif pattern == p_:
-            score -= base
+    s_si3 = 7
+    p_si3 = [[2, 1, 1, 1, 0], [0, 1, 1, 1, 2]]
+    p_si3_ = [[1, 2, 2, 2, 0], [0, 2, 2, 2, 1]]
+    s_huo3 = 63
+    p_huo3 = [0, 1, 1, 1, 0]
+    p_huo3_ = [0, 2, 2, 2, 0]
+    for p in board.pattern('5'):
+        if p in p_si3:
+            score += s_si3
+        elif p in p_si3_:
+            score -= s_si3
+        elif p == p_huo3:
+            score += s_huo3
+        elif p == p_huo3_:
+            score -= s_huo3
     return score
 
-def tiao3(board):
-    """[0, 1, 1, 0, 1, 0]"""
-    base = 60
+def check4(board):
+    """冲4，活4"""
     score = 0
-    p1 = [0, 1, 1, 0, 1, 0]
-    p2 = [0, 1, 0, 1, 1, 0]
-    p1_ = [0, 2, 2, 0, 2, 0]
-    p2_ = [0, 2, 0, 2, 2, 0]
-    for pattern in board.pattern('6'):
-        if pattern in [p1, p2]:
-            score += base
-        elif pattern in [p1_, p2_]:
-            score -= base
-    return score
-
-def lian3(board):
-    """
-    [0, 0, 0, 0, 0, 0, 0]
-    [0, 0, 0, 0, 0, *, 0]
-    [0, 0, 0, 0, *, 0, 0]
-    [0, *, *, *, 0, 0, 0]
-    [0, 0, 0, 0, 0, 0, 0]
-    """
-    base = 200
-    score = 0
-    # p1 = [[6, 6, 6, 6, 6, 6, 0],
-    #       [6, 6, 6, 6, 6, 1, 6],
-    #       [6, 6, 6, 6, 1, 6, 6],
-    #       [0, 1, 1, 1, 0, 6, 6],
-    #       [6, 6, 0, 6, 6, 6, 6]]
-    # p2 = [[0, 6, 6, 6, 6, 6, 6],
-    #       [6, 1, 6, 6, 6, 6, 6],
-    #       [6, 6, 1, 6, 6, 6, 6],
-    #       [6, 6, 0, 1, 1, 1, 0],
-    #       [6, 6, 6, 6, 0, 6, 6]]
-    # p3 = [[6, 6, 6, 6, 0, 6, 6],
-    #       [6, 6, 0, 1, 1, 1, 0],
-    #       [6, 6, 1, 6, 6, 6, 6],
-    #       [6, 1, 0, 6, 6, 6, 6],
-    #       [0, 6, 6, 6, 0, 6, 6]]
-    # p4 = [[6, 6, 0, 6, 6, 6, 6],
-    #       [0, 1, 1, 1, 0, 6, 6],
-    #       [6, 6, 6, 6, 1, 6, 6],
-    #       [6, 6, 6, 6, 6, 1, 0],
-    #       [6, 6, 6, 6, 0, 6, 0]]
-    for pattern in board.pattern('7x5'):
-        res = huo3(pattern)  # TODO
-        if res >= 100:
-            score += base
-        elif res <= 100:
-            score -= base
+    s_chong4 = 31
+    p_chong4 = [[2, 1, 1, 1, 1, 0], [0, 1, 1, 1, 1, 2]]
+    p_chong4_ = [[1, 2, 2, 2, 2, 0], [0, 2, 2, 2, 2, 1]]
+    s_huo4 = 511
+    p_huo4 = [0, 1, 1, 1, 1, 0]
+    p_huo4_ = [0, 2, 2, 2, 2, 0]
+    for p in board.pattern('6'):
+        if p in p_chong4:
+            score += s_chong4
+        elif p in p_chong4_:
+            score -= s_chong4
+        elif p == p_huo4:
+            score += s_huo4
+        elif p == p_huo4_:
+            score -= s_huo4
     return score
