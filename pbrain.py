@@ -8,13 +8,10 @@ import pisqpipe as pp
 from pisqpipe import DEBUG_EVAL, DEBUG
 
 # Our agent
-import agent as agent
-
+import minimax as agent
+# import genetic as agent
+# import mcts as agent
 pp.infotext = agent.infotext
-
-MAX_BOARD = 100
-board = [[0 for i in range(MAX_BOARD)] for j in range(MAX_BOARD)]
-
 
 def brain_init():
     if pp.width < 5 or pp.height < 5:
@@ -25,17 +22,17 @@ def brain_init():
         return
     pp.pipeOut("OK")
 
-
 def brain_restart():
     for x in range(pp.width):
         for y in range(pp.height):
             agent.board[x, y] = 0
     pp.pipeOut("OK")
 
-
 def isFree(x, y):
-    return x >= 0 and y >= 0 and x < pp.width and y < pp.height and agent.board[x, y] == 0
-
+    cond1 = x >= 0 and y >= 0
+    cond2 = x < pp.width and y < pp.height
+    cond3 = agent.board[x, y] == 0
+    return all([cond1, cond2, cond3])
 
 def brain_my(x, y):
     if isFree(x, y):
@@ -43,13 +40,11 @@ def brain_my(x, y):
     else:
         pp.pipeOut("ERROR my move [{},{}]".format(x, y))
 
-
 def brain_opponents(x, y):
     if isFree(x, y):
         agent.board[x, y] = 2
     else:
         pp.pipeOut("ERROR opponents's move [{},{}]".format(x, y))
-
 
 def brain_block(x, y):
     if isFree(x, y):
@@ -57,34 +52,30 @@ def brain_block(x, y):
     else:
         pp.pipeOut("ERROR winning move [{},{}]".format(x, y))
 
-
 def brain_takeback(x, y):
-    if x >= 0 and y >= 0 and x < pp.width and y < pp.height and board[x][y] != 0:
+    cond1 = x >= 0 and y >= 0
+    cond2 = x < pp.width and y < pp.height
+    cond3 = agent.board[x, y] != 0
+    if all([cond1, cond2, cond3]):
         agent.board[x, y] = 0
         return 0
     return 2
 
-
-# brain_turn should be implemented in specific agents.
-
+# brain_turn should be implemented in specific agents
 def brain_turn():
     if pp.terminateAI:
         return
-    x, y = agent.minimax()
+    x, y = agent.main()
     pp.do_mymove(x, y)
-
 
 def brain_end():
     pass
 
-
 def brain_about():
     pp.pipeOut(pp.infotext)
 
-
 if DEBUG_EVAL:
     import win32gui
-
 
     def brain_eval(x, y):
         # TODO check if it works as expected
@@ -134,7 +125,7 @@ def brain_turn():
 """
 ######################################################################
 
-# "overwrites" functions in pisqpipe module
+# Overwrite functions in pisqpipe module
 pp.brain_init = brain_init
 pp.brain_restart = brain_restart
 pp.brain_my = brain_my
@@ -147,10 +138,5 @@ pp.brain_about = brain_about
 if DEBUG_EVAL:
     pp.brain_eval = brain_eval
 
-
-def main():
-    pp.main()
-
-
 if __name__ == "__main__":
-    main()
+    pp.main()
