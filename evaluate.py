@@ -27,11 +27,11 @@ def check2(board):
         if p in p_si2:
             score += s_si2
         elif p in p_si2_:
-            score -= s_si2
+            score -= 2*s_si2
         elif p == p_huo2:
             score += s_huo2
         elif p == p_huo2_:
-            score -= s_huo2
+            score -= 2*s_huo2
     return score
 
 def check3(board):
@@ -50,15 +50,15 @@ def check3(board):
         if p in p_si3:
             score += s_si3
         elif p in p_si3_:
-            score -= s_si3
+            score -= 2*s_si3
         elif p == p_huo3:
             score += s_huo3
         elif p == p_huo3_:
-            score -= s_huo3
+            score -= 2*s_huo3
         elif p == p_cheng5:
             score += s_cheng5
         elif p == p_cheng5_:
-            score -= s_cheng5
+            score -= 2*s_cheng5
     return score
 
 def check4(board):
@@ -74,9 +74,9 @@ def check4(board):
         if p in p_chong4:
             score += s_chong4
         elif p in p_chong4_:
-            score -= s_chong4
+            score -= 2*s_chong4
         elif p == p_huo4:
             score += s_huo4
         elif p == p_huo4_:
-            score -= s_huo4
+            score -= 2*s_huo4
     return score

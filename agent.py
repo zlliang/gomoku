@@ -13,30 +13,43 @@ board = util.Board(scale=20)
 
 INF = float("inf")
 
+cache = {}
+cache_used_NUM = 0
+
 
 def minimax(max_depth=3):
+    global cache
+    cache = {}
     x, y = maxValue(board, 0, max_depth, -INF, INF, return_pattern=True)
+    print("Search Space:", len(cache))
+    print("Cache Used:", cache_used_NUM)
     return x, y
 
 
 def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
+    global cache, cache_used_NUM
     if depth == max_depth:
         v = evaluate.evaluate(board)
         return v
     v = -INF
     x_max, y_max = 0, 0
-    for x in board.xrange:
-        for y in board.yrange:
-            if board[x, y] == 0:
-                board[x, y] = 1
-                v_old = v
+    for pos in board.candidate():
+        x, y = pos
+        v_old = v
+        if board[x, y] == 0:
+            board[x, y] = 1
+            if board.zobrist in cache:
+                v = cache[board.zobrist]
+                cache_used_NUM += 1
+            else:
                 v = max(v, minValue(board, depth + 1, max_depth, alpha, beta))
-                if v > v_old:
-                    x_max, y_max = x, y
-                board[x, y] = 0
-                if v >= beta:
-                    return v
-                alpha = max(alpha, v)
+                cache[board.zobrist] = v
+            if v > v_old:
+                x_max, y_max = x, y
+            board[x, y] = 0
+            if v >= beta:
+                return v
+            alpha = max(alpha, v)
     if return_pattern:
         return x_max, y_max
     else:
@@ -44,16 +57,22 @@ def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
 
 
 def minValue(board, depth, max_depth, alpha, beta):
+    global cache, cache_used_NUM
     if depth == max_depth:
         return evaluate.evaluate(board)
     v = INF
-    for x in board.xrange:
-        for y in board.yrange:
-            if board[x, y] == 0:
-                board[x, y] = 2
+    for pos in board.candidate():
+        x, y = pos
+        if board[x, y] == 0:
+            board[x, y] = 2
+            if board.zobrist in cache:
+                v = cache[board.zobrist]
+                cache_used_NUM += 1
+            else:
                 v = min(v, maxValue(board, depth + 1, max_depth, alpha, beta))
-                board[x, y] = 0
-                if v <= alpha:
-                    return v
-                alpha = min(beta, v)
+                cache[board.zobrist] = v
+            board[x, y] = 0
+            if v <= alpha:
+                return v
+            alpha = min(beta, v)
     return v

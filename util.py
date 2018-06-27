@@ -1,3 +1,6 @@
+import random
+
+
 class Board:
     """Board representation for Gomoku
     
@@ -25,7 +28,7 @@ class Board:
         >>> b.pattern('5')
         >>> b.pattern('3x5')
     """
-    
+
     def __init__(self, board=None, scale=20):
         if not board:
             self._board = [[0 for i in range(scale)] for j in range(scale)]
@@ -37,14 +40,35 @@ class Board:
             except TypeError:  # Only one row, a flat list
                 self.size = (len(board), 1)
         # Initialize ranges
-        self._x_min = int(scale/2)
-        self._x_max = int(scale/2)
-        self._y_min = int(scale/2)
-        self._y_max = int(scale/2)
-        self.xrange = range(self._x_min-1, self._x_max+2)
-        self.yrange = range(self._y_min-1, self._y_max+2)
+        self._x_min = int(scale / 2)
+        self._x_max = int(scale / 2)
+        self._y_min = int(scale / 2)
+        self._y_max = int(scale / 2)
+        self.xrange = range(self._x_min - 1, self._x_max + 2)
+        self.yrange = range(self._y_min - 1, self._y_max + 2)
         self._flag = False
-    
+        # Initialize Zobrist-Hashing
+        self.zobrist = random.randint(1, 1000000000)
+        self._zobrist_com = [[random.randint(1, 1000000000) for i in range(scale)] for j in range(scale)]
+        self._zobrist_hum = [[random.randint(1, 1000000000) for i in range(scale)] for j in range(scale)]
+
+    def candidate(self):
+        candidate = []
+        for x in self.xrange:
+            for y in self.yrange:
+                if self._board[x][y] == 0 and self._has_neighbor(x, y, 1):
+                    candidate.append((x, y))
+        return candidate
+
+    def _has_neighbor(self, x, y, dist=1):
+        hasNeighbor = False
+        for i in range(max(x - dist, 0), min(x + dist + 1, self.size[0])):
+            for j in range(max(y - dist, 0), min(y + dist + 1, self.size[1])):
+                if not (i == x and j == y) or self._board[i][j]:
+                    hasNeighbor = True
+                    return hasNeighbor
+        return hasNeighbor
+
     def pattern(self, t):
         """Get local patterns of a board
 
@@ -60,36 +84,36 @@ class Board:
         patterns: An iterable generator, in which all subset are instances of 
                   this class `Board`
         """
-        x_start = max(self._x_min-1, 0)
-        x_end = min(self._x_max+2, self.size[0])
-        y_start = max(self._y_min-1, 0)
-        y_end = min(self._y_max+2, self.size[1])
+        x_start = max(self._x_min - 1, 0)
+        x_end = min(self._x_max + 2, self.size[0])
+        y_start = max(self._y_min - 1, 0)
+        y_end = min(self._y_max + 2, self.size[1])
         return self[x_start:x_end, y_start:y_end]._pattern(t)
-    
+
     def _pattern(self, t):
         nx, ny = self.size
         if str(t).isdigit():  # 'n' <-> n-triples
             t = int(t)
             for x in range(nx):
-                for y in range(ny-t+1):
-                    yield Board([self[x, y+i] for i in range(t)])  # V
-            for x in range(nx-t+1):
+                for y in range(ny - t + 1):
+                    yield Board([self[x, y + i] for i in range(t)])  # V
+            for x in range(nx - t + 1):
                 for y in range(ny):
-                    yield self[x:x+t, y]  # H
-            for x in range(nx-t+1):
-                for y in range(ny-t+1):
-                    yield Board([self[x+i, y+i] for i in range(t)])  # RD
-            for x in range(t-1, nx):
-                for y in range(ny-t+1):
-                    yield Board([self[x-i, y+i] for i in range(t)])  # LD
+                    yield self[x:x + t, y]  # H
+            for x in range(nx - t + 1):
+                for y in range(ny - t + 1):
+                    yield Board([self[x + i, y + i] for i in range(t)])  # RD
+            for x in range(t - 1, nx):
+                for y in range(ny - t + 1):
+                    yield Board([self[x - i, y + i] for i in range(t)])  # LD
         elif 'x' in t:  # 'nxm' -> [n, m]-subsets
             sx, sy = map(int, t.split('x'))
-            for x in range(nx-sx+1):
-                for y in range(ny-sy+1):
-                    yield self[x:x+sx, y:y+sy]
+            for x in range(nx - sx + 1):
+                for y in range(ny - sy + 1):
+                    yield self[x:x + sx, y:y + sy]
         else:
             raise ValueError("Not an appropriate parameter for pattern query!")
-        
+
     def _deflate_range(self):
         # cond1 = x == self._x_min
         # cond2 = x == self._x_max
@@ -110,20 +134,20 @@ class Board:
                     y_max = max(y_max, y)
         if x_min > x_max:
             # Initialize ranges
-            self._x_min = int(self.size[0]/2)
-            self._x_max = int(self.size[0]/2)
-            self._y_min = int(self.size[1]/2)
-            self._y_max = int(self.size[1]/2)
-            self.xrange = range(self._x_min-1, self._x_max+2)
-            self.yrange = range(self._y_min-1, self._y_max+2)
+            self._x_min = int(self.size[0] / 2)
+            self._x_max = int(self.size[0] / 2)
+            self._y_min = int(self.size[1] / 2)
+            self._y_max = int(self.size[1] / 2)
+            self.xrange = range(self._x_min - 1, self._x_max + 2)
+            self.yrange = range(self._y_min - 1, self._y_max + 2)
             self._flag = False
             return
         self._x_min = x_min
         self._x_max = x_max
         self._y_min = y_min
         self._y_max = y_max
-        self.xrange = range(max(self._x_min-1, 0), min(self._x_max+2, self.size[0]))
-        self.yrange = range(max(self._y_min-1, 0), min(self._y_max+2, self.size[1]))
+        self.xrange = range(max(self._x_min - 1, 0), min(self._x_max + 2, self.size[0]))
+        self.yrange = range(max(self._y_min - 1, 0), min(self._y_max + 2, self.size[1]))
 
     def __getitem__(self, indices):
         if self.size[1] == 1:  # Only one row, a flat list
@@ -138,11 +162,21 @@ class Board:
                 subset = [[row[y]] for row in self._board]
             subset = subset[x]
             return Board(subset)
-    
+
     def __setitem__(self, indices, value):
         y, x = indices
         if isinstance(x, slice) or isinstance(y, slice):
             raise ValueError("Trying to assign multiple values to the board!")
+        # Update zobrist-hashing
+        if value == 0:
+            player = self._board[x][y]
+        else:
+            player = value
+        if player == 1:
+            self.zobrist ^= self._zobrist_hum[x][y]
+        elif player == 2:
+            self.zobrist ^= self._zobrist_com[x][y]
+        # Update board value
         self._board[x][y] = value
         # Update ranges
         if value == 0 or self._flag == False:
@@ -152,16 +186,16 @@ class Board:
             self._x_max = max(self._x_max, x)
             self._y_min = min(self._y_min, y)
             self._y_max = max(self._y_max, y)
-            self.xrange = range(max(self._x_min-1, 0), min(self._x_max+2, self.size[0]))
-            self.yrange = range(max(self._y_min-1, 0), min(self._y_max+2, self.size[1]))
+            self.xrange = range(max(self._x_min - 1, 0), min(self._x_max + 2, self.size[0]))
+            self.yrange = range(max(self._y_min - 1, 0), min(self._y_max + 2, self.size[1]))
             self._flag = True
-    
+
     def __eq__(self, obj):
         if type(self) == type(obj):
             return self._board == obj._board
         else:
             return self._board == obj
-    
+
     def __repr__(self):
         if isinstance(self._board[0], list):
             l = [str(row) for row in self._board]
