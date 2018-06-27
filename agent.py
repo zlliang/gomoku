@@ -18,8 +18,9 @@ cache_used_NUM = 0
 
 
 def minimax(max_depth=3):
-    global cache
+    global cache, cache_used_NUM
     cache = {}
+    cache_used_NUM = 0
     x, y = maxValue(board, 0, max_depth, -INF, INF, return_pattern=True)
     print("Search Space:", len(cache))
     print("Cache Used:", cache_used_NUM)
