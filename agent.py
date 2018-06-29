@@ -25,18 +25,17 @@ def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
         return v
     v = -INF
     x_max, y_max = 0, 0
-    for x in board.xrange:
-        for y in board.yrange:
-            if board[x, y] == 0:
-                board[x, y] = 1
-                v_old = v
-                v = max(v, minValue(board, depth + 1, max_depth, alpha, beta))
-                if v > v_old:
-                    x_max, y_max = x, y
-                board[x, y] = 0
-                if v >= beta:
-                    return v
-                alpha = max(alpha, v)
+    for x, y in board.candidate():
+        if board[x, y] == 0:
+            board[x, y] = 1
+            v_old = v
+            v = max(v, minValue(board, depth + 1, max_depth, alpha, beta))
+            if v > v_old:
+                x_max, y_max = x, y
+            board[x, y] = 0
+            if v >= beta:
+                return v
+            alpha = max(alpha, v)
     if return_pattern:
         return x_max, y_max
     else:
@@ -47,13 +46,12 @@ def minValue(board, depth, max_depth, alpha, beta):
     if depth == max_depth:
         return evaluate.evaluate(board)
     v = INF
-    for x in board.xrange:
-        for y in board.yrange:
-            if board[x, y] == 0:
-                board[x, y] = 2
-                v = min(v, maxValue(board, depth + 1, max_depth, alpha, beta))
-                board[x, y] = 0
-                if v <= alpha:
-                    return v
-                alpha = min(beta, v)
+    for x, y in board.candidate():
+        if board[x, y] == 0:
+            board[x, y] = 2
+            v = min(v, maxValue(board, depth + 1, max_depth, alpha, beta))
+            board[x, y] = 0
+            if v <= alpha:
+                return v
+            alpha = min(beta, v)
     return v
