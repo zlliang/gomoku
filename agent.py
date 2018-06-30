@@ -1,5 +1,6 @@
 import util
 import random
+import math
 
 score = {
     'ONE': 10,
@@ -27,11 +28,11 @@ INF = float("inf")
 nodes_num = 0
 
 
-def minimax(max_depth=4):
+def minimax(depth=4):
     global nodes_num
     nodes_num = 0
-    x, y, top5_points = maxValue(board, 0, max_depth, -INF, INF, return_pattern=True)
-    return x, y, top5_points, nodes_num
+    x, y, top5_points = maxValue(board, 0, depth, -INF, INF, return_pattern=True)
+    return x, y
 
 
 def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
@@ -45,7 +46,9 @@ def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
             return board.evaluate()
     v = -INF
     point_scores = {}
-    for x, y in board.candidate():
+    cand = board.candidate()
+    cand = cand[:math.ceil(len(cand) / (depth + 1))+1]
+    for x, y in cand:
         if board[x, y] == 0:
             board[x, y] = 1
             v_new = minValue(board, depth + 1, max_depth, alpha, beta)
@@ -70,7 +73,9 @@ def minValue(board, depth, max_depth, alpha, beta):
     if depth == max_depth:
         return board.evaluate()
     v = INF
-    for x, y in board.candidate():
+    cand = board.candidate()
+    cand = cand[:math.ceil(len(cand) / (depth + 1))]
+    for x, y in cand:
         if board[x, y] == 0:
             board[x, y] = 2
             v_new = maxValue(board, depth + 1, max_depth, alpha, beta)
@@ -135,7 +140,3 @@ def minNode_more(board, depth, max_depth):
     else:
         return random.choice(cand)
 
-
-board[5, 5] = 1
-board[5, 6] = 2
-checkmate(board, 4)
