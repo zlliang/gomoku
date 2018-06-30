@@ -86,13 +86,15 @@ def minValue(board, depth, max_depth, alpha, beta):
             beta = min(beta, v)
     return v
 
-def minimax_more_max(board, max_depth=2):
+def minimax_more_max(board, max_depth=4):
     v = maxValue_more(board, 0, max_depth, -INF, INF)
-    return v
+    if v > 9000000:  # TODO: 如何判断赢
+        return True
+    return False
 
-def minimax_more_min(board, max_depth=2):
-    v = minValue_more(board, 0, max_depth, -INF, INF)
-    return v
+# def minimax_more_min(board, max_depth=4):
+#     v = minValue_more(board, 0, max_depth, -INF, INF)
+#     return v
 
 def maxValue_more(board, depth, max_depth, alpha, beta):
     global nodes_num
@@ -102,15 +104,16 @@ def maxValue_more(board, depth, max_depth, alpha, beta):
         return v
     v = -INF
     for x, y in board.candidate():
-        if board.score_1[(x, y)] < score['THREE'] and board.score_2[(x, y)] < score['THREE']:
-            continue
-        if board[x, y] == 0:
-            board[x, y] = 1
-            v = minValue_more(board, depth + 1, max_depth, alpha, beta)
-            board[x, y] = 0
-            if v >= beta:
-                return v
-            alpha = max(alpha, v)
+        if board.score_1[(x, y)] >= score['BLOCKED_FOUR']:
+            if board[x, y] == 0:
+                board[x, y] = 1
+                v = minValue_more(board, depth + 1, max_depth, alpha, beta)
+                board[x, y] = 0
+                if v >= beta:
+                    return v
+                alpha = max(alpha, v)
+    if v = -INF:
+        return False
     return v
 
 def minValue_more(board, depth, max_depth, alpha, beta):
@@ -121,7 +124,7 @@ def minValue_more(board, depth, max_depth, alpha, beta):
         return v
     v = INF
     for x, y in board.candidate():
-        if board.score_2[(x, y)] < score['THREE'] and board.score_1[(x, y)] < score['THREE']:
+        if board.score_2[(x, y)] < score['BLOCKED_FOUR'] and board.score_1[(x, y)] < score['BLOCKED_FOUR']:
             continue
         if board[x, y] == 0:
             board[x, y] = 2
@@ -130,4 +133,5 @@ def minValue_more(board, depth, max_depth, alpha, beta):
             if v <= alpha:
                 return v
             beta = min(beta, v)
+            break
     return v
