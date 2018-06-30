@@ -51,6 +51,11 @@ class Board:
                 self.size = (len(board[0]), len(board))
             except TypeError:  # Only one row, a flat list
                 self.size = (len(board), 1)
+            self.step_count = 0
+            for i in range(self.size[0]):
+                for j in range(self.size[1]):
+                    if self[i, j] != 0:
+                        self.step_count += 1
         self.xrange = range(self.size[0])
         self.yrange = range(self.size[1])
         self.step_count = 0
@@ -71,7 +76,7 @@ class Board:
         self.score_1 = ddict(lambda: 0.0)
         self.score_2 = ddict(lambda: 0.0)
         self._init_score()
-    
+
     def evaluate(self, role=1):
         max_score_1 = 0
         max_score_2 = 0
@@ -84,7 +89,7 @@ class Board:
         mult = 1 if role == 1 else -1
         result = mult * (max_score_1 - max_score_2)
         return result
-    
+
     def _init_score(self):
         for i in self.xrange:
             for j in self.yrange:
@@ -96,9 +101,9 @@ class Board:
                     self.score_1[(i, j)] = self._get_point_score(i, j, 1)
                 elif self[i, j] == 2:
                     self.score_2[(i, j)] = self._get_point_score(i, j, 2)
-    
+
     def _update_score(self, x, y, radius=6):
-        
+
         scale = self.size[0]
         # h
         for i in range(-radius, radius):
@@ -109,7 +114,7 @@ class Board:
             if xi >= scale:
                 break
             self._update_score_sub(xi, yi, 'h')
-        
+
         # v
         for i in range(-radius, radius):
             xi = x
@@ -129,7 +134,7 @@ class Board:
             if xi >= scale or yi >= scale:
                 break
             self._update_score_sub(xi, yi, 'r')
-        
+
         # l
         for i in range(-radius, radius):
             xi = x + i
@@ -139,19 +144,18 @@ class Board:
             if xi >= scale or yi >= scale:
                 break
             self._update_score_sub(xi, yi, 'l')
-    
+
     def _update_score_sub(self, x, y, direction):
         role = self[x, y]
         if role == 0 or role == 1:
             self.score_1[(x, y)] = self._get_point_score(x, y, 1, direction)
         else:
             self.score_1[(x, y)] = 0
-        
+
         if role == 0 or role == 2:
             self.score_2[(x, y)] = self._get_point_score(x, y, 2, direction)
         else:
             self.score_2[(x, y)] = 0
-                    
 
     def candidate(self):
         fives = []
@@ -162,19 +166,19 @@ class Board:
         for x in self.xrange:
             for y in self.yrange:
                 if self._has_neighbor(x, y) and self[x, y] == 0:
-                    score_hum = self._get_point_score(x, y, 1)
-                    score_com = self._get_point_score(x, y, 2)
+                    score_1 = self._get_point_score(x, y, 1)
+                    score_2 = self._get_point_score(x, y, 2)
                     # print((x, y), score_hum, score_com)
-                    if score_com >= score['FIVE']:
+                    if score_1 >= score['FIVE']:
                         return [(x, y)]
-                    elif score_hum >= score['FIVE']:
+                    elif score_2 >= score['FIVE']:
                         fives.append((x, y))
-                    elif score_com >= score['FOUR']:
+                    elif score_1 >= score['FOUR']:
                         fours.insert(0, (x, y))
-                    elif score_hum >= score['FOUR']:
+                    elif score_2 >= score['FOUR']:
                         fours.append((x, y))
                     else:
-                        point_scores[(x, y)] = max(score_hum, score_com)
+                        point_scores[(x, y)] = max(score_1, score_2)
         # If forced moves exist, return them
         if len(fives): return [fives[0]]
         if len(fours): return fours
@@ -272,7 +276,7 @@ class Board:
                     break
                 t = self[i, y]
                 if t == 0:
-                    if empty == -1 and i < scale-1 and self[i+1, y] == role:
+                    if empty == -1 and i < scale - 1 and self[i + 1, y] == role:
                         empty = count
                         continue
                     else:
@@ -291,7 +295,7 @@ class Board:
                     break
                 t = self[i, y]
                 if t == 0:
-                    if empty == -1 and i > 0 and self[i-1, y] == role:
+                    if empty == -1 and i > 0 and self[i - 1, y] == role:
                         empty = 0
                         continue
                     else:
@@ -322,7 +326,7 @@ class Board:
                     break
                 t = self[x, i]
                 if t == 0:
-                    if empty == -1 and i < scale-1 and self[x, i+1] == role:
+                    if empty == -1 and i < scale - 1 and self[x, i + 1] == role:
                         empty = count
                         continue
                     else:
@@ -341,7 +345,7 @@ class Board:
                     break
                 t = self[x, i]
                 if t == 0:
-                    if empty == -1 and i > 0 and self[x, i-1] == role:
+                    if empty == -1 and i > 0 and self[x, i - 1] == role:
                         empty = 0
                         continue
                     else:
@@ -374,7 +378,7 @@ class Board:
                     break
                 t = self[xi, yi]
                 if t == 0:
-                    if empty == -1 and xi < scale-1 and yi < scale-1 and self[xi+1, yi+1] == role:
+                    if empty == -1 and xi < scale - 1 and yi < scale - 1 and self[xi + 1, yi + 1] == role:
                         empty = count
                         continue
                     else:
@@ -395,7 +399,7 @@ class Board:
                     break
                 t = self[xi, yi]
                 if t == 0:
-                    if empty == -1 and xi > 0 and yi > 0 and self[xi-1, yi-1] == role:
+                    if empty == -1 and xi > 0 and yi > 0 and self[xi - 1, yi - 1] == role:
                         empty = 0
                         continue
                     else:
@@ -428,7 +432,7 @@ class Board:
                     break
                 t = self[xi, yi]
                 if t == 0:
-                    if empty == -1 and xi < scale-1 and yi > 0 and self[xi+1, yi-1] == role:
+                    if empty == -1 and xi < scale - 1 and yi > 0 and self[xi + 1, yi - 1] == role:
                         empty = count
                         continue
                     else:
@@ -449,7 +453,7 @@ class Board:
                     break
                 t = self[xi, yi]
                 if t == 0:
-                    if empty == -1 and xi > 0 and yi < scale-1 and self[xi-1, yi+1] == role:
+                    if empty == -1 and xi > 0 and yi < scale - 1 and self[xi - 1, yi + 1] == role:
                         empty = 0
                         continue
                     else:
@@ -465,7 +469,7 @@ class Board:
             count += second_count
             self.score_cache[role]['l'][(x, y)] = self._count_to_score(count, block, empty)
             result += self.score_cache[role]['l'][(x, y)]
-        
+
         return result
 
     def _count_to_score(self, count, block, empty):
