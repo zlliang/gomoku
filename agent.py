@@ -102,7 +102,7 @@ def maxValue_more(board, depth, max_depth, alpha, beta):
         return v
     v = -INF
     for x, y in board.candidate():
-        if board.score_1[(x, y)] < score['THREE']:
+        if board.score_1[(x, y)] < score['THREE'] and board.score_2[(x, y)] < score['THREE']:
             continue
         if board[x, y] == 0:
             board[x, y] = 1
@@ -121,8 +121,8 @@ def minValue_more(board, depth, max_depth, alpha, beta):
         return v
     v = INF
     for x, y in board.candidate():
-        # if board.score_2[(x, y)] < score['THREE']:
-        #     continue
+        if board.score_2[(x, y)] < score['THREE'] and board.score_1[(x, y)] < score['THREE']:
+            continue
         if board[x, y] == 0:
             board[x, y] = 2
             v = min(v, maxValue_more(board, depth + 1, max_depth, alpha, beta))
