@@ -76,9 +76,8 @@ def brain_takeback(x, y):
 def brain_turn():
     if pp.terminateAI:
         return
-    x, y, top5_points, nodes_num = agent.minimax()
+    x, y = agent.minimax()
     pp.do_mymove(x, y)
-    # print("Search Nodes Expanded:{}".format(nodes_num)+str(top5_points))
 
 
 def brain_end():
