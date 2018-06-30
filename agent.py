@@ -1,5 +1,4 @@
 import util
-import evaluate
 
 infotext = (
     'name="minimax", '
@@ -12,14 +11,18 @@ infotext = (
 board = util.Board(scale=20)
 
 INF = float("inf")
+nodes_num = 0
 
 
 def minimax(max_depth=3):
     x, y = maxValue(board, 0, max_depth, -INF, INF, return_pattern=True)
+    print("Nodes Expanded:", nodes_num)
     return x, y
 
 
 def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
+    global nodes_num
+    nodes_num += 1
     if depth == max_depth:
         v = board.evaluate()
         return v
@@ -43,6 +46,8 @@ def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
 
 
 def minValue(board, depth, max_depth, alpha, beta):
+    global nodes_num
+    nodes_num += 1
     if depth == max_depth:
         return board.evaluate()
     v = INF
