@@ -389,7 +389,7 @@ class Board:
             while True:
                 i += 1
                 xi = x - i
-                yi = x - i
+                yi = y - i
                 if xi < 0 or yi < 0:
                     block += 1
                     break
@@ -443,7 +443,7 @@ class Board:
             while True:
                 i += 1
                 xi = x - i
-                yi = x + i
+                yi = y + i
                 if xi < 0 or yi < 0 or xi >= scale or yi >= scale:
                     block += 1
                     break
@@ -463,8 +463,8 @@ class Board:
                     block += 1
                     break
             count += second_count
-            self.score_cache[role]['r'][(x, y)] = self._count_to_score(count, block, empty)
-            result += self.score_cache[role]['r'][(x, y)]
+            self.score_cache[role]['l'][(x, y)] = self._count_to_score(count, block, empty)
+            result += self.score_cache[role]['l'][(x, y)]
         
         return result
 
