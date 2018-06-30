@@ -112,28 +112,28 @@ class Board:
         patterns: An iterable generator, in which all subset are instances of 
                   this class `Board`
         """
-        x_start = max(self._x_min - 1, 0)
-        x_end = min(self._x_max + 2, self.size[0])
-        y_start = max(self._y_min - 1, 0)
-        y_end = min(self._y_max + 2, self.size[1])
-        return self[x_start:x_end, y_start:y_end]._pattern(t)
-
+        x_start = max(self._x_min-1, 0)
+        x_end = min(self._x_max+2, self.size[0])
+        y_start = max(self._y_min-1, 0)
+        y_end = min(self._y_max+2, self.size[1])
+        return Board(self[x_start:x_end, y_start:y_end])._pattern(t)
+    
     def _pattern(self, t):
         nx, ny = self.size
         if str(t).isdigit():  # 'n' <-> n-triples
             t = int(t)
             for x in range(nx):
-                for y in range(ny - t + 1):
-                    yield Board([self[x, y + i] for i in range(t)])  # V
-            for x in range(nx - t + 1):
+                for y in range(ny-t+1):
+                    yield self[x, y:y+t]  # V
+            for x in range(nx-t+1):
                 for y in range(ny):
-                    yield self[x:x + t, y]  # H
-            for x in range(nx - t + 1):
-                for y in range(ny - t + 1):
-                    yield Board([self[x + i, y + i] for i in range(t)])  # RD
-            for x in range(t - 1, nx):
-                for y in range(ny - t + 1):
-                    yield Board([self[x - i, y + i] for i in range(t)])  # LD
+                    yield self[x:x+t, y]  # H
+            for x in range(nx-t+1):
+                for y in range(ny-t+1):
+                    yield [self[x+i, y+i] for i in range(t)]  # RD
+            for x in range(t-1, nx):
+                for y in range(ny-t+1):
+                    yield [self[x-i, y+i] for i in range(t)]  # LD
         elif 'x' in t:  # 'nxm' -> [n, m]-subsets
             sx, sy = map(int, t.split('x'))
             for x in range(nx - sx + 1):
@@ -182,15 +182,11 @@ class Board:
             return self._board[indices]
         else:
             y, x = indices
-            if not isinstance(x, slice) and not isinstance(y, slice):  # Scalar
+            if not isinstance(x, slice):  # Scalar
                 return self._board[x][y]
-            if isinstance(y, slice):
-                subset = [row[y] for row in self._board]
             else:
-                subset = [[row[y]] for row in self._board]
-            subset = subset[x]
-            return Board(subset)
-
+                return [row[y] for row in self._board[x]]
+    
     def __setitem__(self, indices, value):
         y, x = indices
         if isinstance(x, slice) or isinstance(y, slice):
