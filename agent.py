@@ -15,9 +15,10 @@ nodes_num = 0
 
 
 def minimax(max_depth=3):
-    x, y = maxValue(board, 0, max_depth, -INF, INF, return_pattern=True)
-    print("Nodes Expanded:", nodes_num)
-    return x, y
+    global nodes_num
+    nodes_num = 0
+    x, y, top5_points = maxValue(board, 0, max_depth, -INF, INF, return_pattern=True)
+    return x, y, top5_points, nodes_num
 
 
 def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
@@ -27,20 +28,22 @@ def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
         v = board.evaluate()
         return v
     v = -INF
-    x_max, y_max = 0, 0
+    point_scores = {}
     for x, y in board.candidate():
         if board[x, y] == 0:
             board[x, y] = 1
-            v_old = v
-            v = max(v, minValue(board, depth + 1, max_depth, alpha, beta))
-            if v > v_old:
-                x_max, y_max = x, y
+            v_new = minValue(board, depth + 1, max_depth, alpha, beta)
+            v = max(v, v_new)
+            if return_pattern:
+                point_scores[(x, y)] = v_new
             board[x, y] = 0
             if v >= beta:
                 return v
             alpha = max(alpha, v)
     if return_pattern:
-        return x_max, y_max
+        scores = sorted(list(point_scores.items()), key=lambda x: x[1], reverse=True)
+        next_x, next_y = scores[0][0]
+        return next_x, next_y, scores[:5]
     else:
         return v
 

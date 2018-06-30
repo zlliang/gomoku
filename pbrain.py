@@ -8,10 +8,14 @@ import pisqpipe as pp
 from pisqpipe import DEBUG_EVAL, DEBUG
 
 # Our agent
-import minimax as agent
+import agent as agent
+
 # import genetic as agent
 # import mcts as agent
+
 pp.infotext = agent.infotext
+MAX_BOARD = 20
+
 
 def brain_init():
     if pp.width < 5 or pp.height < 5:
@@ -22,11 +26,13 @@ def brain_init():
         return
     pp.pipeOut("OK")
 
+
 def brain_restart():
     for x in range(pp.width):
         for y in range(pp.height):
             agent.board[x, y] = 0
     pp.pipeOut("OK")
+
 
 def isFree(x, y):
     cond1 = x >= 0 and y >= 0
@@ -34,11 +40,13 @@ def isFree(x, y):
     cond3 = agent.board[x, y] == 0
     return all([cond1, cond2, cond3])
 
+
 def brain_my(x, y):
     if isFree(x, y):
         agent.board[x, y] = 1
     else:
         pp.pipeOut("ERROR my move [{},{}]".format(x, y))
+
 
 def brain_opponents(x, y):
     if isFree(x, y):
@@ -46,11 +54,13 @@ def brain_opponents(x, y):
     else:
         pp.pipeOut("ERROR opponents's move [{},{}]".format(x, y))
 
+
 def brain_block(x, y):
     if isFree(x, y):
         agent.board[x, y] = 3
     else:
         pp.pipeOut("ERROR winning move [{},{}]".format(x, y))
+
 
 def brain_takeback(x, y):
     cond1 = x >= 0 and y >= 0
@@ -61,21 +71,27 @@ def brain_takeback(x, y):
         return 0
     return 2
 
+
 # brain_turn should be implemented in specific agents
 def brain_turn():
     if pp.terminateAI:
         return
-    x, y = agent.main()
+    x, y, top5_points, nodes_num = agent.minimax()
     pp.do_mymove(x, y)
+    # print("Search Nodes Expanded:{}".format(nodes_num)+str(top5_points))
+
 
 def brain_end():
     pass
 
+
 def brain_about():
     pp.pipeOut(pp.infotext)
 
+
 if DEBUG_EVAL:
     import win32gui
+
 
     def brain_eval(x, y):
         # TODO check if it works as expected
