@@ -21,7 +21,7 @@ def minimax(max_depth=3):
 
 def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
     if depth == max_depth:
-        v = evaluate.evaluate(board)
+        v = board.evaluate()
         return v
     v = -INF
     x_max, y_max = 0, 0
@@ -44,7 +44,7 @@ def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
 
 def minValue(board, depth, max_depth, alpha, beta):
     if depth == max_depth:
-        return evaluate.evaluate(board)
+        return board.evaluate()
     v = INF
     for x, y in board.candidate():
         if board[x, y] == 0:

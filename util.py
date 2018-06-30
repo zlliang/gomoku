@@ -12,6 +12,7 @@ score = {
     'BLOCKED_FOUR': 10000
 }
 
+
 class Board:
     """Board representation for Gomoku
     
@@ -153,22 +154,34 @@ class Board:
                     
 
     def candidate(self):
-        point_score = {}
+        fives = []
+        fours = []
+        point_scores = {}
         if self.step_count == 0:
             return [(int(self.size[0] / 2), int(self.size[1] / 2))]
         for x in self.xrange:
             for y in self.yrange:
-                if self._has_neighbor(x, y):
-                    score = self._get_point_score(x, y, 1)
-                    if score > 3:
+                if self._has_neighbor(x, y) and self[x, y] == 0:
+                    score_hum = self._get_point_score(x, y, 1)
+                    score_com = self._get_point_score(x, y, 2)
+                    # print((x, y), score_hum, score_com)
+                    if score_com >= score['FIVE']:
                         return [(x, y)]
+                    elif score_hum >= score['FIVE']:
+                        fives.append((x, y))
+                    elif score_com >= score['FOUR']:
+                        fours.insert(0, (x, y))
+                    elif score_hum >= score['FOUR']:
+                        fours.append((x, y))
                     else:
-                        point_score[(x, y)] = score
-        scores = sorted(list(point_score.items()), key=lambda x: x[1], reverse=True)
-        print(scores)
+                        point_scores[(x, y)] = max(score_hum, score_com)
+        # If forced moves exist, return them
+        if len(fives): return [fives[0]]
+        if len(fours): return fours
+        # If no forced move, sort all candidate with scores
+        scores = sorted(list(point_scores.items()), key=lambda x: x[1], reverse=True)
         candidate = [i[0] for i in scores]
         return candidate
-
 
     # def _get_point_score(self, x, y):
     #     directions = [(1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1)]
@@ -213,7 +226,7 @@ class Board:
                 return self._board[x][y]
             else:
                 return [row[y] for row in self._board[x]]
-    
+
     def __setitem__(self, indices, value):
         y, x = indices
         if isinstance(x, slice) or isinstance(y, slice):
@@ -244,7 +257,7 @@ class Board:
         block = 0
         second_count = 0
         scale = self.size[0]
-        
+
         # horizental
         if direction == None or direction == 'h':
             count = 1
@@ -466,21 +479,23 @@ class Board:
                 if count in switcher:
                     return switcher[count]
             if block == 1:
-                switcher = {1: score['BLOCKED_ONE'], 2: score['BLOCKED_TWO'], 3: score['BLOCKED_THREE'], 4: score['BLOCKED_FOUR']}
+                switcher = {1: score['BLOCKED_ONE'], 2: score['BLOCKED_TWO'], 3: score['BLOCKED_THREE'],
+                            4: score['BLOCKED_FOUR']}
                 if count in switcher:
                     return switcher[count]
-        elif empty == 1 or empty == count-1:
+        elif empty == 1 or empty == count - 1:
             if count >= 6:
                 return score['FIVE']
             if block == 0:
-                switcher = {2: score['TWO']/2, 3: score['THREE'], 4: score['BLOCKED_FOUR'], 5: score['FOUR']}
+                switcher = {2: score['TWO'] / 2, 3: score['THREE'], 4: score['BLOCKED_FOUR'], 5: score['FOUR']}
                 if count in switcher:
                     return switcher[count]
             if block == 1:
-                switcher = {2: score['BLOCKED_TWO'], 3: score['BLOCKED_THREE'], 4: score['BLOCKED_FOUR'], 5: score['BLOCKED_FOUR']}
+                switcher = {2: score['BLOCKED_TWO'], 3: score['BLOCKED_THREE'], 4: score['BLOCKED_FOUR'],
+                            5: score['BLOCKED_FOUR']}
                 if count in switcher:
                     return switcher[count]
-        elif empty == 2 or empty == count-2:
+        elif empty == 2 or empty == count - 2:
             if count >= 7:
                 return score['FIVE']
             if block == 0:
@@ -488,14 +503,15 @@ class Board:
                 if count in switcher:
                     return switcher[count]
             if block == 1:
-                switcher = {3: score['BLOCKED_THREE'], 4: score['BLOCKED_FOUR'], 5: score['BLOCKED_FOUR'], 6: score['FOUR']}
+                switcher = {3: score['BLOCKED_THREE'], 4: score['BLOCKED_FOUR'], 5: score['BLOCKED_FOUR'],
+                            6: score['FOUR']}
                 if count in switcher:
                     return switcher[count]
             if block == 2:
                 switcher = {4: 0, 5: 0, 6: score['BLOCKED_FOUR']}
                 if count in switcher:
                     return switcher[count]
-        elif empty == 3 or empty == count-3:
+        elif empty == 3 or empty == count - 3:
             if count >= 8:
                 return score['FIVE']
             if block == 0:
@@ -510,7 +526,7 @@ class Board:
                 switcher = {4: 0, 5: 0, 6: 0, 7: score['BLOCKED_FOUR']}
                 if count in switcher:
                     return switcher[count]
-        elif empty == 4 or empty == count-4:
+        elif empty == 4 or empty == count - 4:
             if count >= 9:
                 return score['FIVE']
             if block == 0:
@@ -525,7 +541,7 @@ class Board:
                 switcher = {5: 0, 6: 0, 7: 0, 8: score['BLOCKED_FOUR']}
                 if count in switcher:
                     return switcher[count]
-        elif empty == 5 or empty == count-5:
+        elif empty == 5 or empty == count - 5:
             return score['FIVE']
-        
+
         return 0
