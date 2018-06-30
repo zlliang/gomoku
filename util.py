@@ -545,3 +545,114 @@ class Board:
             return score['FIVE']
 
         return 0
+    
+
+    def _is_five(self, x, y, role):
+        scale = self.size[0]
+
+        count = 1
+        i = y + 1
+        while True:
+            if i >= scale:
+                break
+            t = self[x, i]
+            if t != role:
+                break
+            count += 1
+            i += 1
+        i = y - 1
+        while True:
+            if i < 0:
+                break
+            t = self[x, i]
+            if t != role:
+                break
+            count += 1
+            i -= 1
+        if count >= 5:
+            return True
+        
+        count = 1
+        i = x + 1
+        while True:
+            if i >= scale:
+                break
+            t = self[i, y]
+            if t != role:
+                break
+            count += 1
+            i += 1
+        i = x - 1
+        while True:
+            if i < 0:
+                break
+            t = self[i, y]
+            if t != role:
+                break
+            count += 1
+            i -= 1
+        if count >= 5:
+            return True
+        
+        count = 1
+        i = 1
+        while True:
+            xi = x + i
+            yi = y + i
+            if xi >= scale or yi >= scale:
+                break
+            t = self[xi, yi]
+            if t != role:
+                break
+            count += 1
+            i += 1
+        i = 1
+        while True:
+            xi = x - i
+            yi = y - i
+            if xi < 0 or yi < 0:
+                break
+            t = self[xi, yi]
+            if t != role:
+                break
+            count += 1
+            i += 1
+        if count >= 5:
+            return True
+        
+        count = 1
+        i = 1
+        while True:
+            xi = x + i
+            yi = y - i
+            if xi < 0 or yi < 0 or xi >= scale or yi >= scale:
+                break
+            t = self[xi, yi]
+            if t != role:
+                break
+            count += 1
+            i += 1
+        i = 1
+        while True:
+            xi = x - i
+            yi = y + i
+            if xi < 0 or yi < 0 or xi >= scale or yi >= scale:
+                break
+            t = self[xi, yi]
+            if t != role:
+                break
+            count += 1
+            i += 1
+        if count >= 5:
+            return True
+        
+        return False
+
+    def win(self):
+        for i in self.xrange:
+            for j in self.yrange:
+                r = self[i, j]
+                if r != 0:
+                    role = self._is_five(i, j, r)
+                    return role
+        return False
