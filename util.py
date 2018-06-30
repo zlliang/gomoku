@@ -67,6 +67,90 @@ class Board:
                 'l': ddict(lambda: 0.0)
             }
         }
+        self.score_1 = ddict(lambda: 0.0)
+        self.score_2 = ddict(lambda: 0.0)
+        self._init_score()
+    
+    def evaluate(self, role=1):
+        max_score_1 = 0
+        max_score_2 = 0
+        for i in self.xrange:
+            for j in self.yrange:
+                if self[i, j] == 1:
+                    max_score_1 = max(self.score_1[(i, j)], max_score_1)
+                elif self[i, j] == 2:
+                    max_score_2 = max(self.score_2[(i, j)], max_score_2)
+        mult = 1 if role == 1 else -1
+        result = mult * (max_score_1 - max_score_2)
+        return result
+    
+    def _init_score(self):
+        for i in self.xrange:
+            for j in self.yrange:
+                if self[i, j] == 0:
+                    if self._has_neighbor(i, j):
+                        self.score_1[(i, j)] = self._get_point_score(i, j, 1)
+                        self.score_2[(i, j)] = self._get_point_score(i, j, 2)
+                elif self[i, j] == 1:
+                    self.score_1[(i, j)] = self._get_point_score(i, j, 1)
+                elif self[i, j] == 2:
+                    self.score_2[(i, j)] = self._get_point_score(i, j, 2)
+    
+    def _update_score(self, x, y, radius=6):
+        
+        scale = self.size[0]
+        # h
+        for i in range(-radius, radius):
+            xi = x + i
+            yi = y
+            if xi < 0:
+                continue
+            if xi >= scale:
+                break
+            self._update_score_sub(xi, yi, 'h')
+        
+        # v
+        for i in range(-radius, radius):
+            xi = x
+            yi = y + i
+            if yi < 0:
+                continue
+            if yi >= scale:
+                break
+            self._update_score_sub(xi, yi, 'v')
+
+        # r
+        for i in range(-radius, radius):
+            xi = x + i
+            yi = y + i
+            if xi < 0 or yi < 0:
+                continue
+            if xi >= scale or yi >= scale:
+                break
+            self._update_score_sub(xi, yi, 'r')
+        
+        # l
+        for i in range(-radius, radius):
+            xi = x + i
+            yi = y - i
+            if xi < 0 or yi < 0:
+                continue
+            if xi >= scale or yi >= scale:
+                break
+            self._update_score_sub(xi, yi, 'l')
+    
+    def _update_score_sub(self, x, y, direction):
+        role = self[x, y]
+        if role == 0 or role == 1:
+            self.score_1[(x, y)] = self._get_point_score(x, y, 1, direction)
+        else:
+            self.score_1[(x, y)] = 0
+        
+        if role == 0 or role == 2:
+            self.score_2[(x, y)] = self._get_point_score(x, y, 2, direction)
+        else:
+            self.score_2[(x, y)] = 0
+                    
 
     def candidate(self):
         point_score = {}
@@ -75,7 +159,7 @@ class Board:
         for x in self.xrange:
             for y in self.yrange:
                 if self._has_neighbor(x, y):
-                    score = self._get_point_score(x, y)
+                    score = self._get_point_score(x, y, 1)
                     if score > 3:
                         return [(x, y)]
                     else:
@@ -116,7 +200,7 @@ class Board:
     def _has_neighbor(self, x, y, dist=1):
         for i in range(max(x - dist, 0), min(x + dist + 1, self.size[0])):
             for j in range(max(y - dist, 0), min(y + dist + 1, self.size[1])):
-                if not (i == x and j == y) and self._board[i][j]:
+                if not (i == x and j == y) and self[i, j]:
                     return True
         return False
 
@@ -139,6 +223,7 @@ class Board:
             self.step_count -= 1
         else:
             self.step_count += 1
+        self._update_score(y, x)
 
     def __eq__(self, obj):
         if type(self) == type(obj):
@@ -153,7 +238,7 @@ class Board:
         else:
             return str(self._board)
 
-    def _get_point_score(self, x, y, role):
+    def _get_point_score(self, x, y, role, direction=None):
         result = 0
         count = 0
         block = 0
@@ -161,208 +246,212 @@ class Board:
         scale = self.size[0]
         
         # horizental
-        count = 1
-        block = 0
-        empty = -1
-        second_count = 0
-        i = x
-        while True:
-            i += 1
-            if i >= scale:
-                block += 1
-                break
-            t = self[i, y]
-            if t == 0:
-                if empty == -1 and i < scale-1 and self[i+1, y] == role:
-                    empty = count
+        if direction == None or direction == 'h':
+            count = 1
+            block = 0
+            empty = -1
+            second_count = 0
+            i = x
+            while True:
+                i += 1
+                if i >= scale:
+                    block += 1
+                    break
+                t = self[i, y]
+                if t == 0:
+                    if empty == -1 and i < scale-1 and self[i+1, y] == role:
+                        empty = count
+                        continue
+                    else:
+                        break
+                if t == role:
+                    count += 1
                     continue
                 else:
+                    block += 1
                     break
-            if t == role:
-                count += 1
-                continue
-            else:
-                block += 1
-                break
-        i = x
-        while True:
-            i -= 1
-            if i < 0:
-                block += 1
-                break
-            t = self[i, y]
-            if t == 0:
-                if empty == -1 and i > 0 and self[i-1, y] == role:
-                    empty = 0
+            i = x
+            while True:
+                i -= 1
+                if i < 0:
+                    block += 1
+                    break
+                t = self[i, y]
+                if t == 0:
+                    if empty == -1 and i > 0 and self[i-1, y] == role:
+                        empty = 0
+                        continue
+                    else:
+                        break
+                if t == role:
+                    second_count += 1
+                    if empty != -1 and empty:
+                        empty += 1
                     continue
                 else:
+                    block += 1
                     break
-            if t == role:
-                second_count += 1
-                if empty != -1 and empty:
-                    empty += 1
-                continue
-            else:
-                block += 1
-                break
-        count += second_count
-        self.score_cache[role]['h'][(x, y)] = self._count_to_score(count, block, empty)
-        result += self.score_cache[role]['h'][(x, y)]
+            count += second_count
+            self.score_cache[role]['h'][(x, y)] = self._count_to_score(count, block, empty)
+            result += self.score_cache[role]['h'][(x, y)]
 
         # vertical
-        count = 1
-        block = 0
-        empty = -1
-        second_count = 0
-        i = y
-        while True:
-            i += 1
-            if i >= scale:
-                block += 1
-                break
-            t = self[x, i]
-            if t == 0:
-                if empty == -1 and i < scale-1 and self[x, i+1] == role:
-                    empty = count
+        if direction == None or direction == 'v':
+            count = 1
+            block = 0
+            empty = -1
+            second_count = 0
+            i = y
+            while True:
+                i += 1
+                if i >= scale:
+                    block += 1
+                    break
+                t = self[x, i]
+                if t == 0:
+                    if empty == -1 and i < scale-1 and self[x, i+1] == role:
+                        empty = count
+                        continue
+                    else:
+                        break
+                if t == role:
+                    count += 1
                     continue
                 else:
+                    block += 1
                     break
-            if t == role:
-                count += 1
-                continue
-            else:
-                block += 1
-                break
-        i = y
-        while True:
-            i -= 1
-            if i < 0:
-                block += 1
-                break
-            t = self[x, i]
-            if t == 0:
-                if empty == -1 and i > 0 and self[x, i-1] == role:
-                    empty = 0
+            i = y
+            while True:
+                i -= 1
+                if i < 0:
+                    block += 1
+                    break
+                t = self[x, i]
+                if t == 0:
+                    if empty == -1 and i > 0 and self[x, i-1] == role:
+                        empty = 0
+                        continue
+                    else:
+                        break
+                if t == role:
+                    second_count += 1
+                    if empty != -1 and empty:
+                        empty += 1
                     continue
                 else:
+                    block += 1
                     break
-            if t == role:
-                second_count += 1
-                if empty != -1 and empty:
-                    empty += 1
-                continue
-            else:
-                block += 1
-                break
-        count += second_count
-        self.score_cache[role]['v'][(x, y)] = self._count_to_score(count, block, empty)
-        result += self.score_cache[role]['v'][(x, y)]
+            count += second_count
+            self.score_cache[role]['v'][(x, y)] = self._count_to_score(count, block, empty)
+            result += self.score_cache[role]['v'][(x, y)]
 
         # r
-        count = 1
-        block = 0
-        empty = -1
-        second_count = 0
-        i = 0
-        while True:
-            i += 1
-            xi = x + i
-            yi = y + i
-            if xi >= scale or yi >= scale:
-                block += 1
-                break
-            t = self[xi, yi]
-            if t == 0:
-                if empty == -1 and xi < scale-1 and yi < scale-1 and self[xi+1, yi+1] == role:
-                    empty = count
+        if direction == None or direction == 'r':
+            count = 1
+            block = 0
+            empty = -1
+            second_count = 0
+            i = 0
+            while True:
+                i += 1
+                xi = x + i
+                yi = y + i
+                if xi >= scale or yi >= scale:
+                    block += 1
+                    break
+                t = self[xi, yi]
+                if t == 0:
+                    if empty == -1 and xi < scale-1 and yi < scale-1 and self[xi+1, yi+1] == role:
+                        empty = count
+                        continue
+                    else:
+                        break
+                if t == role:
+                    count += 1
                     continue
                 else:
+                    block += 1
                     break
-            if t == role:
-                count += 1
-                continue
-            else:
-                block += 1
-                break
-        i = 0
-        while True:
-            i += 1
-            xi = x - i
-            yi = x - i
-            if xi < 0 or yi < 0:
-                block += 1
-                break
-            t = self[xi, yi]
-            if t == 0:
-                if empty == -1 and xi > 0 and yi > 0 and self[xi-1, yi-1] == role:
-                    empty = 0
+            i = 0
+            while True:
+                i += 1
+                xi = x - i
+                yi = x - i
+                if xi < 0 or yi < 0:
+                    block += 1
+                    break
+                t = self[xi, yi]
+                if t == 0:
+                    if empty == -1 and xi > 0 and yi > 0 and self[xi-1, yi-1] == role:
+                        empty = 0
+                        continue
+                    else:
+                        break
+                if t == role:
+                    second_count += 1
+                    if empty != -1 and empty:
+                        empty += 1
                     continue
                 else:
+                    block += 1
                     break
-            if t == role:
-                second_count += 1
-                if empty != -1 and empty:
-                    empty += 1
-                continue
-            else:
-                block += 1
-                break
-        count += second_count
-        self.score_cache[role]['r'][(x, y)] = self._count_to_score(count, block, empty)
-        result += self.score_cache[role]['r'][(x, y)]
+            count += second_count
+            self.score_cache[role]['r'][(x, y)] = self._count_to_score(count, block, empty)
+            result += self.score_cache[role]['r'][(x, y)]
 
         # l
-        count = 1
-        block = 0
-        empty = -1
-        second_count = 0
-        i = 0
-        while True:
-            i += 1
-            xi = x + i
-            yi = y - i
-            if xi < 0 or yi < 0 or xi >= scale or yi > scale:
-                block += 1
-                break
-            t = self[xi, yi]
-            if t == 0:
-                if empty == -1 and xi < scale-1 and yi < scale-1 and self[xi+1, yi-1] == role:
-                    empty = count
+        if direction == None or direction == 'l':
+            count = 1
+            block = 0
+            empty = -1
+            second_count = 0
+            i = 0
+            while True:
+                i += 1
+                xi = x + i
+                yi = y - i
+                if xi < 0 or yi < 0 or xi >= scale or yi >= scale:
+                    block += 1
+                    break
+                t = self[xi, yi]
+                if t == 0:
+                    if empty == -1 and xi < scale-1 and yi > 0 and self[xi+1, yi-1] == role:
+                        empty = count
+                        continue
+                    else:
+                        break
+                if t == role:
+                    count += 1
                     continue
                 else:
+                    block += 1
                     break
-            if t == role:
-                count += 1
-                continue
-            else:
-                block += 1
-                break
-        i = 0
-        while True:
-            i += 1
-            xi = x - i
-            yi = x + i
-            if xi < 0 or yi < 0 or xi >= scale or yi > scale:
-                block += 1
-                break
-            t = self[xi, yi]
-            if t == 0:
-                if empty == -1 and xi > 0 and yi > 0 and self[xi-1, yi+1] == role:
-                    empty = 0
+            i = 0
+            while True:
+                i += 1
+                xi = x - i
+                yi = x + i
+                if xi < 0 or yi < 0 or xi >= scale or yi >= scale:
+                    block += 1
+                    break
+                t = self[xi, yi]
+                if t == 0:
+                    if empty == -1 and xi > 0 and yi < scale-1 and self[xi-1, yi+1] == role:
+                        empty = 0
+                        continue
+                    else:
+                        break
+                if t == role:
+                    second_count += 1
+                    if empty != -1 and empty:
+                        empty += 1
                     continue
                 else:
+                    block += 1
                     break
-            if t == role:
-                second_count += 1
-                if empty != -1 and empty:
-                    empty += 1
-                continue
-            else:
-                block += 1
-                break
-        count += second_count
-        self.score_cache[role]['r'][(x, y)] = self._count_to_score(count, block, empty)
-        result += self.score_cache[role]['r'][(x, y)]
+            count += second_count
+            self.score_cache[role]['r'][(x, y)] = self._count_to_score(count, block, empty)
+            result += self.score_cache[role]['r'][(x, y)]
         
         return result
 
