@@ -24,7 +24,7 @@ def _minimax(depth=4):
     global nodes_num
     nodes_num = 0
     x, y, top5_points = maxValue(board, 0, depth, -INF, INF, return_pattern=True)
-    return x, y, top5_points, nodes_num
+    return x, y
 
 
 def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):

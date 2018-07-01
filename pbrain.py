@@ -8,7 +8,8 @@ import pisqpipe as pp
 from pisqpipe import DEBUG_EVAL, DEBUG
 
 # Our agent
-import agent as agent
+# import agent as agent
+import minimaxbase as agent
 
 # import genetic as agent
 # import mcts as agent
