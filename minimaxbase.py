@@ -13,7 +13,7 @@ board = util.Board(scale=20)
 INF = float("inf")
 nodes_num = 0
 
-def minimax(init_depth=2, max_depth=6):
+def minimax(init_depth=2, max_depth=4):
     if board.step_count <= 5:
         return _minimax(init_depth)
     else:
@@ -37,8 +37,8 @@ def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
     point_scores = {}
     # Choose candidate
     candidates = board.candidate()
-    if len(candidates) >= 5:
-        candidates.sort(key=lambda c: _approx(c, 1))
+    # if len(candidates) >= 5:
+    #     candidates.sort(key=lambda c: _approx(c, 1))
     for x, y in candidates[:5]:
         if board[x, y] == 0:
             board[x, y] = 1
@@ -66,8 +66,8 @@ def minValue(board, depth, max_depth, alpha, beta):
     v = INF
     # Choose candidate
     candidates = board.candidate()
-    if len(candidates) >= 5:
-        candidates.sort(key=lambda c: _approx(c, 2))
+    # if len(candidates) >= 5:
+    #     candidates.sort(key=lambda c: _approx(c, 2))
     for x, y in candidates[:5]:
         if board[x, y] == 0:
             board[x, y] = 2

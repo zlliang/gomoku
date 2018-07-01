@@ -76,23 +76,9 @@ class Board:
         self.xrange = range(self.size[0])
         self.yrange = range(self.size[1])
         self.step_count = 0
-        self.score_cache = {
-            1: {
-                'h': ddict(lambda: 0.0),
-                'v': ddict(lambda: 0.0),
-                'r': ddict(lambda: 0.0),
-                'l': ddict(lambda: 0.0)
-            },
-            2: {
-                'h': ddict(lambda: 0.0),
-                'v': ddict(lambda: 0.0),
-                'r': ddict(lambda: 0.0),
-                'l': ddict(lambda: 0.0)
-            }
-        }
         self.score_1 = ddict(lambda: 0.0)
         self.score_2 = ddict(lambda: 0.0)
-        self._init_score()
+        # self._init_score()
 
     def evaluate(self, role=1):
         max_score_1 = 0
@@ -103,22 +89,24 @@ class Board:
                     max_score_1 = max(self.score_1[(i, j)], max_score_1)
                 elif self[i, j] == 2:
                     max_score_2 = max(self.score_2[(i, j)], max_score_2)
+        
+        max_score_1 = self._fix_evaluation(max_score_1)
+        max_score_2 = self._fix_evaluation(max_score_2)
         mult = 1 if role == 1 else -1
         result = mult * (max_score_1 - max_score_2)
         return result
 
-    def _init_score(self):
-        pass
-        # for i in self.xrange:
-        #     for j in self.yrange:
-        #         if self[i, j] == 0:
-        #             if self._has_neighbor(i, j):
-        #                 self.score_1[(i, j)] = self._get_point_score(i, j, 1)
-        #                 self.score_2[(i, j)] = self._get_point_score(i, j, 2)
-        #         elif self[i, j] == 1:
-        #             self.score_1[(i, j)] = self._get_point_score(i, j, 1)
-        #         elif self[i, j] == 2:
-        #             self.score_2[(i, j)] = self._get_point_score(i, j, 2)
+    # def _init_score(self):
+    #     for i in self.xrange:
+    #         for j in self.yrange:
+    #             if self[i, j] == 0:
+    #                 if self._has_neighbor(i, j):
+    #                     self.score_1[(i, j)] = self._get_point_score(i, j, 1)
+    #                     self.score_2[(i, j)] = self._get_point_score(i, j, 2)
+    #             elif self[i, j] == 1:
+    #                 self.score_1[(i, j)] = self._get_point_score(i, j, 1)
+    #             elif self[i, j] == 2:
+    #                 self.score_2[(i, j)] = self._get_point_score(i, j, 2)
 
     def _update_score(self, x, y, radius=6):
 
@@ -298,8 +286,7 @@ class Board:
                     block += 1
                     break
             count += second_count
-            self.score_cache[role]['h'][(x, y)] = self._count_to_score(count, block, empty)
-            result += self.score_cache[role]['h'][(x, y)]
+            result += self._count_to_score(count, block, empty)
 
         # vertical
         if direction == None or direction == 'v':
@@ -348,8 +335,7 @@ class Board:
                     block += 1
                     break
             count += second_count
-            self.score_cache[role]['v'][(x, y)] = self._count_to_score(count, block, empty)
-            result += self.score_cache[role]['v'][(x, y)]
+            result += self._count_to_score(count, block, empty)
 
         # r
         if direction == None or direction == 'r':
@@ -402,8 +388,7 @@ class Board:
                     block += 1
                     break
             count += second_count
-            self.score_cache[role]['r'][(x, y)] = self._count_to_score(count, block, empty)
-            result += self.score_cache[role]['r'][(x, y)]
+            result += self._count_to_score(count, block, empty)
 
         # l
         if direction == None or direction == 'l':
@@ -456,8 +441,7 @@ class Board:
                     block += 1
                     break
             count += second_count
-            self.score_cache[role]['l'][(x, y)] = self._count_to_score(count, block, empty)
-            result += self.score_cache[role]['l'][(x, y)]
+            result += self._count_to_score(count, block, empty)
 
         return result
 
@@ -620,3 +604,13 @@ class Board:
                     role = self._is_five(i, j, r)
                     return role
         return False
+    
+    def _fix_evaluation(self, s):
+        if s < score['FOUR'] and s >= score['BLOCKED_FOUR']:
+            if s < score['BLOCKED_FOUR'] + score['THREE']:
+                return score['THREE']
+            elif s >= score['BLOCKED_FOUR'] + score['THREE'] and s < score['BLOCKED_FOUR'] * 2:
+                return score['FOUR']
+            else:
+                return score['FOUR'] * 2
+        return s
