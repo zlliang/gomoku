@@ -13,11 +13,9 @@ board = util.Board(scale=20)
 INF = float("inf")
 nodes_num = 0
 
-def minimax(init_depth=2, max_depth=4):
-    if board.step_count <= 5:
-        return _minimax(init_depth)
-    else:
-        return _minimax(max_depth)
+
+def minimax(max_depth=6):
+    return _minimax(max_depth)
 
 
 def _minimax(depth=4):
@@ -77,6 +75,7 @@ def minValue(board, depth, max_depth, alpha, beta):
                 return v
             beta = min(beta, v)
     return v
+
 
 def _approx(c, role):
     board[c[0], c[1]] = role
