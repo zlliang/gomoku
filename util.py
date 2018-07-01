@@ -150,6 +150,9 @@ class Board:
             if xi >= scale or yi < 0:
                 break
             self._update_score_sub(xi, yi, 'l')
+        
+        self._update_score_sub(x, y, None)
+        
 
     def _update_score_sub(self, x, y, direction):
         role = self[x, y]
