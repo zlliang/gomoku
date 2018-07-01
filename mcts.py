@@ -8,9 +8,8 @@ board = util.Board(scale=20)
 
 # Hyper-parameters
 confidence = 1.96
-max_actions = 1000
+max_actions = 15
 max_time = 5.0
-max_depth = 1
 
 # Variants
 plays = {}
@@ -35,9 +34,10 @@ def mcts(role=role_turn[0]):
         simulations += 1
     
     print("Total simulations: ", simulations)
-    print("Maximum depth: ", max_depth)
 
     x, y = select_best_move(candidates)
+    print(plays)
+    print(wins)
     return x, y
 
 def simulate(board, role_turn):
@@ -49,32 +49,37 @@ def simulate(board, role_turn):
     winner = False
     expand = True
 
-    # Simulation
-    for t in range(1, max_actions + 1):
-        # Selection
-        if all(plays.get((role, move)) for move in candidates):
-            log_total = log(sum(plays[(role, move)] for move in candidates))
-            value, move = max(
-                ((wins[(role, move)] / plays[(role,move)]) + sqrt(confidence*log_total / plays[(role, move)]), move)
-            for move in candidates)
-        else:
-            move = random.choice(candidates)
-        board[move[0], move[1]] = role
+    # Selection
+    if all(plays.get((role, move)) for move in candidates):
+        log_total = log(sum(plays[(role, move)] for move in candidates))
+        value, move = max(
+            ((wins[(role, move)] / plays[(role,move)]) + sqrt(confidence*log_total / plays[(role, move)]), move)
+        for move in candidates)
+    else:
+        move = random.choice(candidates)
+    board[move[0], move[1]] = role
 
-        # Expand
-        if expand and (role, move) not in plays:
-            expand = False
-            plays[(role, move)] = 0
-            wins[(role, move)] = 0
-            if t > max_depth:
-                max_depth = t
-        
-        visited_states.add((role, move))
-        win = board.win()
-        if win != False:
+    # Expand
+    if expand and (role, move) not in plays:
+        expand = False
+        plays[(role, move)] = 0
+        wins[(role, move)] = 0
+    visited_states.add((role, move))
+    
+    # Simulation
+    for t in range(max_actions):
+        r = get_role(role_turn)
+        x, y = board.candidate()[0]
+        board[x, y] = r
+        if board.win():
             break
-        
-        role = get_role(role_turn)
+    
+    win = board.win()
+    print(board)
+    if win != False:
+        print("Win: ", win)
+    
+    # role = get_role(role_turn)
     
     # Back-propagation
     for r, move in visited_states:
