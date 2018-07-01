@@ -518,7 +518,7 @@ class Board:
             count += 1
             i -= 1
         if count >= 5:
-            return True
+            return role
         
         count = 1
         i = x + 1
@@ -540,7 +540,7 @@ class Board:
             count += 1
             i -= 1
         if count >= 5:
-            return True
+            return role
         
         count = 1
         i = 1
@@ -566,7 +566,7 @@ class Board:
             count += 1
             i += 1
         if count >= 5:
-            return True
+            return role
         
         count = 1
         i = 1
@@ -592,7 +592,7 @@ class Board:
             count += 1
             i += 1
         if count >= 5:
-            return True
+            return role
         
         return False
 
@@ -602,7 +602,8 @@ class Board:
                 r = self[i, j]
                 if r != 0:
                     role = self._is_five(i, j, r)
-                    return role
+                    if role:
+                        return role
         return False
     
     def _fix_evaluation(self, s):
