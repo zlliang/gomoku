@@ -28,22 +28,22 @@ INF = float("inf")
 nodes_num = 0
 
 
-def minimax(depth=4):
+def minimax(max_depth=6):
+    return _minimax(max_depth)
+
+
+def _minimax(depth=4):
     global nodes_num
     nodes_num = 0
     x, y, top5_points = maxValue(board, 0, depth, -INF, INF, return_pattern=True)
-    return x, y, top5_points, nodes_num
+    return x, y
 
 
 def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
     global nodes_num
     nodes_num += 1
     if depth == max_depth:
-        win = checkmate(board)
-        if win:
-            return INF
-        else:
-            return board.evaluate()
+        return board.evaluate()
     v = -INF
     point_scores = {}
     cand = board.candidate()
@@ -100,8 +100,8 @@ def checkmate(board, checkmate_depth=6):
 def maxNode_more(board, depth, max_depth):
     global nodes_num
     nodes_num += 1
-    v = board.evaluate()
     winner = board.win()
+    print(winner)
     if winner == 1:
         return True
     elif winner == 2:
@@ -109,7 +109,7 @@ def maxNode_more(board, depth, max_depth):
     if depth >= max_depth:
         return False
     for x, y in board.candidate():
-        if board.score_1[(x, y)] >= score['BLOCKED_FOUR']:
+        if board.score_1[(x, y)] >= 2*score['THREE']:
             board[x, y] = 1
             m = minNode_more(board, depth + 1, max_depth)
             board[x, y] = 0
@@ -121,8 +121,8 @@ def maxNode_more(board, depth, max_depth):
 def minNode_more(board, depth, max_depth):
     global nodes_num
     nodes_num += 1
-    v = board.evaluate()
     winner = board.win()
+    print(winner)
     if winner == 1:
         return True
     elif winner == 2:
@@ -131,7 +131,7 @@ def minNode_more(board, depth, max_depth):
         return False
     cand = []
     for x, y in board.candidate():
-        if board.score_2[(x, y)] + board.score_1[(x, y)] >= score['FOUR']:
+        if board.score_2[(x, y)] + board.score_1[(x, y)] >= score['BLOCKED_FOUR']:
             board[x, y] = 2
             m = maxNode_more(board, depth + 1, max_depth)
             board[x, y] = 0
@@ -143,3 +143,19 @@ def minNode_more(board, depth, max_depth):
         return False
     else:
         return random.choice(cand)
+
+
+if __name__ == '__main__':
+    board = util.Board(board=[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 2, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                              [0, 2, 0, 0, 0, 0, 0, 0, 0, 0],
+                              [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 1, 2, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0, 0, 0, 0, 2]])
+    board.step_count = 10
+    board._init_score()
+    checkmate(board)

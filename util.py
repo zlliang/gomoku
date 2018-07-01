@@ -78,7 +78,7 @@ class Board:
         self.step_count = 0
         self.score_1 = ddict(lambda: 0.0)
         self.score_2 = ddict(lambda: 0.0)
-        # self._init_score()
+        self._init_score()
 
     def evaluate(self, role=1):
         max_score_1 = 0
@@ -96,17 +96,17 @@ class Board:
         result = mult * (max_score_1 - max_score_2)
         return result
 
-    # def _init_score(self):
-    #     for i in self.xrange:
-    #         for j in self.yrange:
-    #             if self[i, j] == 0:
-    #                 if self._has_neighbor(i, j):
-    #                     self.score_1[(i, j)] = self._get_point_score(i, j, 1)
-    #                     self.score_2[(i, j)] = self._get_point_score(i, j, 2)
-    #             elif self[i, j] == 1:
-    #                 self.score_1[(i, j)] = self._get_point_score(i, j, 1)
-    #             elif self[i, j] == 2:
-    #                 self.score_2[(i, j)] = self._get_point_score(i, j, 2)
+    def _init_score(self):
+        for i in self.xrange:
+            for j in self.yrange:
+                if self[i, j] == 0:
+                    if self._has_neighbor(i, j):
+                        self.score_1[(i, j)] = self._get_point_score(i, j, 1)
+                        self.score_2[(i, j)] = self._get_point_score(i, j, 2)
+                elif self[i, j] == 1:
+                    self.score_1[(i, j)] = self._get_point_score(i, j, 1)
+                elif self[i, j] == 2:
+                    self.score_2[(i, j)] = self._get_point_score(i, j, 2)
 
     def _update_score(self, x, y, radius=6):
 
