@@ -32,7 +32,7 @@ def minimax(depth=4):
     global nodes_num
     nodes_num = 0
     x, y, top5_points = maxValue(board, 0, depth, -INF, INF, return_pattern=True)
-    return x, y
+    return x, y, top5_points, nodes_num
 
 
 def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
@@ -47,7 +47,8 @@ def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
     v = -INF
     point_scores = {}
     cand = board.candidate()
-    cand = cand[:math.ceil(len(cand) / (depth + 1))+1]
+    cand = cand[:5]
+    # cand = cand[:math.ceil(len(cand) / (depth + 1))+1]
     for x, y in cand:
         if board[x, y] == 0:
             board[x, y] = 1
@@ -74,7 +75,8 @@ def minValue(board, depth, max_depth, alpha, beta):
         return board.evaluate()
     v = INF
     cand = board.candidate()
-    cand = cand[:math.ceil(len(cand) / (depth + 1))]
+    cand = cand[:5]
+    # cand = cand[:math.ceil(len(cand) / (depth + 1))]
     for x, y in cand:
         if board[x, y] == 0:
             board[x, y] = 2
@@ -99,9 +101,10 @@ def maxNode_more(board, depth, max_depth):
     global nodes_num
     nodes_num += 1
     v = board.evaluate()
-    if v > 9000000:  # TODO: 如何判断赢
+    winner = board.win()
+    if winner == 1:
         return True
-    elif v < -9000000:
+    elif winner == 2:
         return False
     if depth >= max_depth:
         return False
@@ -119,9 +122,10 @@ def minNode_more(board, depth, max_depth):
     global nodes_num
     nodes_num += 1
     v = board.evaluate()
-    if v > 9000000:  # TODO: 如何判断赢
+    winner = board.win()
+    if winner == 1:
         return True
-    elif v < -9000000:
+    elif winner == 2:
         return False
     if depth >= max_depth:
         return False
