@@ -235,16 +235,6 @@ class Board:
         y, x = indices
         if isinstance(x, slice) or isinstance(y, slice):
             raise ValueError("Trying to assign multiple values to the board!")
-        # Update zobrist-hashing
-        if value == 0:
-            player = self._board[x][y]
-        else:
-            player = value
-        if player == 1:
-            self.zobrist ^= self._zobrist_hum[x][y]
-        elif player == 2:
-            self.zobrist ^= self._zobrist_com[x][y]
-        # Update board value
         self._board[x][y] = value
         if value == 0:
             self.step_count -= 1

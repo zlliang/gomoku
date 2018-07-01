@@ -27,9 +27,6 @@ board = util.Board(scale=20)
 INF = float("inf")
 nodes_num = 0
 
-cache = {}
-cache_used_NUM = 0
-
 
 def minimax(depth=4):
     global nodes_num
@@ -140,5 +137,7 @@ def minNode_more(board, depth, max_depth):
                 return False
     if cand == []:
         return False
+    else:
+        return random.choice(cand)
     else:
         return random.choice(cand)
