@@ -78,6 +78,20 @@ class Board:
         self.step_count = 0
         self.score_1 = ddict(lambda: 0.0)
         self.score_2 = ddict(lambda: 0.0)
+        self.score_cache = {
+            1: {
+                'h': ddict(lambda: 0.0),
+                'v': ddict(lambda: 0.0),
+                'r': ddict(lambda: 0.0),
+                'l': ddict(lambda: 0.0)
+            },
+            2: {
+                'h': ddict(lambda: 0.0),
+                'v': ddict(lambda: 0.0),
+                'r': ddict(lambda: 0.0),
+                'l': ddict(lambda: 0.0)
+            }
+        }
         self._init_score()
 
     def evaluate(self, role=1):
@@ -157,12 +171,20 @@ class Board:
     def _update_score_sub(self, x, y, direction):
         role = self[x, y]
         if role == 0 or role == 1:
-            self.score_1[(x, y)] = self._get_point_score(x, y, 1, direction)
+            if direction:
+                self.score_1[(x, y)] -= self.score_cache[1][direction][(x, y)]
+                self.score_1[(x, y)] += self._get_point_score(x, y, 1, direction)
+            else:
+                self.score_1[(x, y)] = self._get_point_score(x, y, 1)
         else:
             self.score_1[(x, y)] = 0
 
         if role == 0 or role == 2:
-            self.score_2[(x, y)] = self._get_point_score(x, y, 2, direction)
+            if direction:
+                self.score_2[(x, y)] -= self.score_cache[2][direction][(x, y)]
+                self.score_2[(x, y)] += self._get_point_score(x, y, 2, direction)
+            else:
+                self.score_2[(x, y)] = self._get_point_score(x, y, 2)
         else:
             self.score_2[(x, y)] = 0
 
@@ -289,7 +311,9 @@ class Board:
                     block += 1
                     break
             count += second_count
-            result += self._count_to_score(count, block, empty)
+            v = self._count_to_score(count, block, empty)
+            self.score_cache[role]['h'][(x, y)] = v
+            result += v
 
         # vertical
         if direction == None or direction == 'v':
@@ -338,7 +362,9 @@ class Board:
                     block += 1
                     break
             count += second_count
-            result += self._count_to_score(count, block, empty)
+            v = self._count_to_score(count, block, empty)
+            self.score_cache[role]['v'][(x, y)] = v
+            result += v
 
         # r
         if direction == None or direction == 'r':
@@ -391,7 +417,9 @@ class Board:
                     block += 1
                     break
             count += second_count
-            result += self._count_to_score(count, block, empty)
+            v = self._count_to_score(count, block, empty)
+            self.score_cache[role]['r'][(x, y)] = v
+            result += v
 
         # l
         if direction == None or direction == 'l':
@@ -444,8 +472,10 @@ class Board:
                     block += 1
                     break
             count += second_count
-            result += self._count_to_score(count, block, empty)
-
+            v = self._count_to_score(count, block, empty)
+            self.score_cache[role]['l'][(x, y)] = v
+            result += v
+        
         return result
 
     def _count_to_score(self, count, block, empty):
