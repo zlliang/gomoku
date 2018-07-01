@@ -139,5 +139,3 @@ def minNode_more(board, depth, max_depth):
         return False
     else:
         return random.choice(cand)
-    else:
-        return random.choice(cand)
