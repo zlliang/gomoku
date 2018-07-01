@@ -61,5 +61,5 @@ def minValue(board, depth, max_depth, alpha, beta):
             board[x, y] = 0
             if v <= alpha:
                 return v
-            alpha = min(beta, v)
+            beta = min(beta, v)
     return v
