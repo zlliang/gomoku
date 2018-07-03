@@ -100,10 +100,10 @@ class Board:
         for i in self.xrange:
             for j in self.yrange:
                 if self[i, j] == 1:
-                    max_score_1 += self._fix_evaluation(self.score_1[(i, j)])
+                    max_score_1 += self._fix_evaluation(self.score_1[(i, j)], i, j, 1)
                     # max_score_1 = max(self.score_1[(i, j)], max_score_1)
                 elif self[i, j] == 2:
-                    max_score_2 += self._fix_evaluation(self.score_2[(i, j)])
+                    max_score_2 += self._fix_evaluation(self.score_2[(i, j)], i, j, 2)
                     # max_score_2 = max(self.score_2[(i, j)], max_score_2)
         
         # max_score_1 = self._fix_evaluation(max_score_1)
@@ -201,9 +201,9 @@ class Board:
                     score_1 = self.score_1[(x, y)]
                     score_2 = self.score_2[(x, y)]
                     # print((x, y), score_hum, score_com)
-                    if score_1 >= score['FIVE']:
+                    if self._is_five(x, y, 1):
                         return [(x, y)]
-                    elif score_2 >= score['FIVE']:
+                    elif self._is_five(x, y, 2):
                         fives.append((x, y))
                     elif score_1 >= score['FOUR']:
                         fours.insert(0, (x, y))
@@ -312,7 +312,7 @@ class Board:
                     block += 1
                     break
             count += second_count
-            v = self._count_to_score(count, block, empty)
+            v = self._count_to_score(count, block, empty, x, y, role)
             self.score_cache[role]['h'][(x, y)] = v
             result += v
 
@@ -363,7 +363,7 @@ class Board:
                     block += 1
                     break
             count += second_count
-            v = self._count_to_score(count, block, empty)
+            v = self._count_to_score(count, block, empty, x, y, role)
             self.score_cache[role]['v'][(x, y)] = v
             result += v
 
@@ -418,7 +418,7 @@ class Board:
                     block += 1
                     break
             count += second_count
-            v = self._count_to_score(count, block, empty)
+            v = self._count_to_score(count, block, empty, x, y, role)
             self.score_cache[role]['r'][(x, y)] = v
             result += v
 
@@ -473,13 +473,13 @@ class Board:
                     block += 1
                     break
             count += second_count
-            v = self._count_to_score(count, block, empty)
+            v = self._count_to_score(count, block, empty, x, y, role)
             self.score_cache[role]['l'][(x, y)] = v
             result += v
         
         return result
 
-    def _count_to_score(self, count, block, empty):
+    def _count_to_score(self, count, block, empty, x, y, role):
         if not empty:
             empty = 0
         if empty <= 0:
@@ -640,7 +640,7 @@ class Board:
                         return role
         return False
     
-    def _fix_evaluation(self, s):
+    def _fix_evaluation(self, s, x, y, role):
         if s < score['FOUR'] and s >= score['BLOCKED_FOUR']:
             if s < score['BLOCKED_FOUR'] + score['THREE']:
                 return score['THREE']
@@ -648,4 +648,7 @@ class Board:
                 return score['FOUR']
             else:
                 return score['FOUR'] * 2
+        if s >= score['FIVE'] and not self._is_five(x, y, role):
+            return score['BLOCKED_FOUR'] * 4
+
         return s
