@@ -123,7 +123,7 @@ class Board:
                 elif self[i, j] == 2:
                     self.score_2[(i, j)] = self._get_point_score(i, j, 2)
 
-    def _update_score(self, x, y, radius=10):
+    def _update_score(self, x, y, radius=6):
 
         scale = self.size[0]
         # h
@@ -217,7 +217,7 @@ class Board:
         if fours:
             return fours
         # If no forced move, sort all candidate with scores
-        candidate = sorted(point_scores, key=lambda p: max(self.score_1[p], self.score_2[p]))
+        candidate = sorted(point_scores, key=lambda p: max(self.score_1[p], self.score_2[p]), reverse=True)
         # scores = sorted(list(point_scores.items()), key=lambda x: x[1], reverse=True)
         # candidate = [i[0] for i in scores]
         return candidate
