@@ -86,7 +86,7 @@ def pipeOut(what):
 
 def do_mymove(x, y):
 	brain_my(x, y)
-	pipeOut("{},{}".format(x,y))
+	# pipeOut("{},{}".format(x,y))
 
 def suggest(x, y):
 	"""send suggest"""

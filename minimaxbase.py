@@ -14,7 +14,7 @@ INF = float("inf")
 nodes_num = 0
 
 
-def minimax(max_depth=6):
+def minimax(max_depth=3):
     return _minimax(max_depth)
 
 
@@ -37,7 +37,7 @@ def maxValue(board, depth, max_depth, alpha, beta, return_pattern=False):
     candidates = board.candidate()
     # if len(candidates) >= 5:
     #     candidates.sort(key=lambda c: _approx(c, 1))
-    for x, y in candidates[:5]:
+    for x, y in candidates:
         if board[x, y] == 0:
             board[x, y] = 1
             v_new = minValue(board, depth + 1, max_depth, alpha, beta)
@@ -66,7 +66,7 @@ def minValue(board, depth, max_depth, alpha, beta):
     candidates = board.candidate()
     # if len(candidates) >= 5:
     #     candidates.sort(key=lambda c: _approx(c, 2))
-    for x, y in candidates[:5]:
+    for x, y in candidates:
         if board[x, y] == 0:
             board[x, y] = 2
             v = min(v, maxValue(board, depth + 1, max_depth, alpha, beta))

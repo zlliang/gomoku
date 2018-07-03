@@ -8,8 +8,9 @@ import pisqpipe as pp
 from pisqpipe import DEBUG_EVAL, DEBUG
 
 # Our agent
-# import agent as agent
-import minimaxbase as agent
+import agent as agent
+
+# import minimaxbase as agent
 
 # import genetic as agent
 # import mcts as agent
@@ -77,8 +78,10 @@ def brain_takeback(x, y):
 def brain_turn():
     if pp.terminateAI:
         return
-    x, y = agent.minimax()
+    pos, v, top5_points, nodes_num = agent.minimax()
+    x, y = pos
     pp.do_mymove(x, y)
+    pp.pipeOut("{},{}\tValue:{}\tNodes:{}\tTop5 Points:{}".format(x, y, v, nodes_num, top5_points))
 
 
 def brain_end():
