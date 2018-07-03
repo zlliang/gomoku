@@ -114,9 +114,8 @@ class Board:
         for i in self.xrange:
             for j in self.yrange:
                 if self[i, j] == 0:
-                    if self._has_neighbor(i, j):
-                        self.score_1[(i, j)] = self._get_point_score(i, j, 1)
-                        self.score_2[(i, j)] = self._get_point_score(i, j, 2)
+                    self.score_1[(i, j)] = self._get_point_score(i, j, 1)
+                    self.score_2[(i, j)] = self._get_point_score(i, j, 2)
                 elif self[i, j] == 1:
                     self.score_1[(i, j)] = self._get_point_score(i, j, 1)
                 elif self[i, j] == 2:
