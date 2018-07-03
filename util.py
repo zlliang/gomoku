@@ -62,6 +62,7 @@ class Board:
         if not board:
             self._board = [[0 for i in range(scale)] for j in range(scale)]
             self.size = (scale, scale)
+            self.step_count = 0
         else:
             self._board = board
             try:
@@ -75,7 +76,6 @@ class Board:
                         self.step_count += 1
         self.xrange = range(self.size[0])
         self.yrange = range(self.size[1])
-        self.step_count = 0
         self.score_1 = ddict(lambda: 0.0)
         self.score_2 = ddict(lambda: 0.0)
         self.score_cache = {
@@ -121,7 +121,7 @@ class Board:
                 elif self[i, j] == 2:
                     self.score_2[(i, j)] = self._get_point_score(i, j, 2)
 
-    def _update_score(self, x, y, radius=6):
+    def _update_score(self, x, y, radius=10):
 
         scale = self.size[0]
         # h
@@ -188,16 +188,16 @@ class Board:
             self.score_2[(x, y)] = 0
 
     def candidate(self):
-        fives = []
-        fours = []
-        point_scores = {}
+        fives = list()
+        fours = list()
+        point_scores = list()
         if self.step_count == 0:
             return [(int(self.size[0] / 2), int(self.size[1] / 2))]
         for x in self.xrange:
             for y in self.yrange:
                 if self._has_neighbor(x, y) and self[x, y] == 0:
-                    score_1 = self._get_point_score(x, y, 1)
-                    score_2 = self._get_point_score(x, y, 2)
+                    score_1 = self.score_1[(x, y)]
+                    score_2 = self.score_2[(x, y)]
                     # print((x, y), score_hum, score_com)
                     if score_1 >= score['FIVE']:
                         return [(x, y)]
@@ -208,17 +208,17 @@ class Board:
                     elif score_2 >= score['FOUR']:
                         fours.append((x, y))
                     else:
-                        point_scores[(x, y)] = max(score_1, score_2)
+                        point_scores.append((x, y))
         # If forced moves exist, return them
-        if len(fives): return [fives[0]]
-        if len(fours): return fours
+        if fives:
+            return [fives[0]]
+        if fours:
+            return fours
         # If no forced move, sort all candidate with scores
-        scores = sorted(list(point_scores.items()), key=lambda x: x[1], reverse=True)
-        candidate = [i[0] for i in scores]
+        candidate = sorted(point_scores, key=lambda p: max(self.score_1[p], self.score_2[p]))
+        # scores = sorted(list(point_scores.items()), key=lambda x: x[1], reverse=True)
+        # candidate = [i[0] for i in scores]
         return candidate
-
-    def _out_of_boards(self, x, y):
-        return (x < 0 or x >= self.size[0]) and (y < 0 or y >= self.size[1])
 
     def _has_neighbor(self, x, y, dist=1):
         for i in range(max(x - dist, 0), min(x + dist + 1, self.size[0])):
