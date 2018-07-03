@@ -100,12 +100,14 @@ class Board:
         for i in self.xrange:
             for j in self.yrange:
                 if self[i, j] == 1:
-                    max_score_1 = max(self.score_1[(i, j)], max_score_1)
+                    max_score_1 += self._fix_evaluation(self.score_1[(i, j)])
+                    # max_score_1 = max(self.score_1[(i, j)], max_score_1)
                 elif self[i, j] == 2:
-                    max_score_2 = max(self.score_2[(i, j)], max_score_2)
+                    max_score_2 += self._fix_evaluation(self.score_2[(i, j)])
+                    # max_score_2 = max(self.score_2[(i, j)], max_score_2)
         
-        max_score_1 = self._fix_evaluation(max_score_1)
-        max_score_2 = self._fix_evaluation(max_score_2)
+        # max_score_1 = self._fix_evaluation(max_score_1)
+        # max_score_2 = self._fix_evaluation(max_score_2)
         mult = 1 if role == 1 else -1
         result = mult * (max_score_1 - max_score_2)
         return result
