@@ -1,9 +1,16 @@
 # Gomoku
-**Authors**: _[Zilong Liang](https://github.com/zlliang)_ and _[Jiancong Gao](https://github.com/jianconggao)_.
+**Authors**: _[Jiancong Gao](https://github.com/jianconggao)_ and _[Zilong Liang](https://github.com/zlliang)_.
+
+This is a Gomoku AI agent implementation, as the final project of [DATA130008](http://www.sdspeople.fudan.edu.cn/zywei/DATA130008/index.html) in Fudan University. Modified Alpha-beta pruned Minimax is implemented as main algorithm in `agent.py`.
+
+It uses [Piskvork](http://gomocup.org/download-gomocup-manager/) as running framework, and we implement our agent according to [pbarin-python](https://github.com/stranskyjan/pbrain-pyrandom) template. To generate executable AI, run:
+```
+pyinstaller.exe pbrain.py pisqpipe.py --name pbrain-gomoku.exe --onefile
+```
+
+## Report
+Our [report](report/report.pdf) shows our work in detail.
 
 ## References
-- Zhao, D., Zhang, Z., & Dai, Y. (2012). _**Self-teaching adaptive dynamic programming for Gomoku.**_ Neurocomputing, 78(1), 23-29. DOI: [10.1016/j.neucom.2011.05.032](https://doi.org/10.1016/j.neucom.2011.05.032)
-- Wang, J., & Huang, L. (2014, September). _**Evolving Gomoku solver by genetic algorithm.**_ In Advanced Research and Technology in Industry Applications (WARTIA), 2014 IEEE Workshop on (pp. 1064-1067). IEEE. DOI: [10.1109/WARTIA.2014.6976460](https://doi.org/10.1109/WARTIA.2014.6976460)
-- Tang, Z., Zhao, D., Shao, K., & Lv, L. (2016, December). _**ADP with MCTS Algorithm for Gomoku.**_ In Computational Intelligence (SSCI), 2016 IEEE Symposium Series on (pp. 1-7). IEEE. DOI: [10.1109/SSCI.2016.7849371](https://doi.org/10.1109/SSCI.2016.7849371)
-- Browne, C. B., Powley, E., Whitehouse, D., Lucas, S. M., Cowling, P. I., Rohlfshagen, P., ... & Colton, S. (2012). _**A survey of monte carlo tree search methods.**_ IEEE Transactions on Computational Intelligence and AI in games, 4(1), 1-43. DOI: [10.1109/TCIAIG.2012.2186810](https://doi.org/10.1109/TCIAIG.2012.2186810)
-- Qiao Tian & Hu Xiaoti (2016) _**CS221 Project Final Report: Gomoku Game Agent**_[report](http://web.stanford.edu/class/cs221/2017/restricted/p-final/xiaotihu/final.pdf)
+- Gobang project (written in Javascript). _[Github](https://github.com/lihongxun945/gobang)_
+- Qiao Tian and Hu Xiaoti (2016), _**CS221 Project Final Report: Gomoku Game Agent**_. _[Report](http://web.stanford.edu/class/cs221/2017/restricted/p-final/xiaotihu/final.pdf)_
